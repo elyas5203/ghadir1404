@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     // --- CONFIGURATION ---
     // !!! این URL را با URL دیپلوی شده خودتان از Apps Script جایگزین کنید !!!
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwH_TlCAupaAit7_Th0-__uU0PEZJMffhgiXtFqBWgbr3ZLdrWTdXEVn17pgAfXIBdZ/exec"; // مثال، حتما جایگزین شود
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxVVyioorf65Pmi4qHNgI2maUUukWYyJ7fLGhv_4d0ZmvlqYJwwmadD9cwghPATrvBR/exec"; // مثال، حتما جایگزین شود
     const ADMIN_TOKEN = "ADMIN_SECRET_TOKEN_110";
 
     const timeSlots = {
@@ -18,6 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- DOM ELEMENTS ---
     const sectionNavButtons = document.querySelectorAll('#section-nav .nav-btn');
+    const sectionNav = document.getElementById('section-nav'); // اضافه شده
     const contentSections = document.querySelectorAll('.content-section');
     const welcomeMessageSection = document.getElementById('welcome-message');
     const loginRegisterBtn = document.getElementById('login-register-btn');
@@ -35,7 +36,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const registerForm = document.getElementById('register-form');
     const adminAddUserForm = document.getElementById('admin-add-user-form');
     const showRegisterLink = document.getElementById('show-register-link');
-    const showLoginLink = document.getElementById('show-login-link'); // تعریف متغیر اینجا
+    const showLoginLink = document.getElementById('show-login-link');
     const regUsernameInput = document.getElementById('reg-username');
     const usernameFeedbackDiv = document.getElementById('username-feedback');
     const loadingSpinner = document.getElementById('loading-spinner');
@@ -126,19 +127,33 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         if(adminPanelSection) adminPanelSection.style.display = 'none';
 
-        const sectionElement = document.getElementById(sectionIdToShow);
-        if (sectionElement) {
-            if (sectionIdToShow === 'admin-panel-section') {
-                adminPanelSection.style.display = 'block';
+        // مدیریت نمایش/عدم نمایش دکمه‌های ناوبری و دکمه ثبت نهایی کاربر
+        if (sectionIdToShow === 'admin-panel-section') {
+            if(sectionNav) sectionNav.style.display = 'none';
+            if(finalizeBtn) finalizeBtn.style.display = 'none';
+            if(adminPanelSection) adminPanelSection.style.display = 'block';
+            if(adminActionsDiv) adminActionsDiv.style.display = 'flex';
+        } else {
+            if(sectionNav) sectionNav.style.display = 'flex';
+            if (currentUser && !currentUser.isAdmin) {
+                 if(finalizeBtn) finalizeBtn.style.display = 'inline-block';
             } else {
+                 if(finalizeBtn) finalizeBtn.style.display = 'none';
+            }
+
+            const sectionElement = document.getElementById(sectionIdToShow);
+            if (sectionElement) {
                 sectionElement.classList.add('active-section');
                 sectionElement.style.display = 'block';
+            } else {
+                if(welcomeMessageSection) {
+                    welcomeMessageSection.classList.add('active-section');
+                    welcomeMessageSection.style.display = 'block';
+                }
             }
-        } else {
-            welcomeMessageSection.classList.add('active-section');
-            welcomeMessageSection.style.display = 'block';
         }
     }
+
 
     function generateTimetable(sectionKey, targetContainerId = null, pUserSelections = null) {
         const sectionConfig = timeSlots[sectionKey];
@@ -201,7 +216,10 @@ document.addEventListener('DOMContentLoaded', () => {
         Object.keys(timeSlots).forEach(sectionKey => {
             if (forAdminEditContext && selectingForUserByAdmin) {
                 const containerId = `${sectionKey}-table-container-admin-edit-${selectingForUserByAdmin.userId}`;
-                generateTimetable(sectionKey, containerId, specificUserSelections || []);
+                // اطمینان از وجود container قبل از فراخوانی generateTimetable
+                if (document.getElementById(containerId)) {
+                    generateTimetable(sectionKey, containerId, specificUserSelections || []);
+                }
             } else if (!forAdminEditContext) { // برای کاربر عادی
                 generateTimetable(sectionKey, null, previousUserSelections);
             }
@@ -231,29 +249,37 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+
     function updateUIForLoginState() {
         if (currentUser) {
             loginRegisterBtn.style.display = 'none';
             userInfoDisplay.style.display = 'flex';
             userFullnameSpan.textContent = `سلام ${currentUser.fullName}`;
-            finalizeBtn.style.display = 'inline-block';
-            if (currentUser.isAdmin) {
-                adminPanelBtn.style.display = 'inline-block';
+            // دکمه finalizeBtn فقط برای کاربر عادی و زمانی که در پنل ادمین نیستیم باید مدیریت شود
+            if (!currentUser.isAdmin && !selectingForUserByAdmin && !adminPanelSection.style.display.includes('block')) {
+                 if(finalizeBtn) finalizeBtn.style.display = 'inline-block';
             } else {
-                adminPanelBtn.style.display = 'none';
+                 if(finalizeBtn) finalizeBtn.style.display = 'none';
+            }
+
+            if (currentUser.isAdmin) {
+                if(adminPanelBtn) adminPanelBtn.style.display = 'inline-block';
+            } else {
+                if(adminPanelBtn) adminPanelBtn.style.display = 'none';
             }
             fetchUserPreviousSelections();
         } else {
             loginRegisterBtn.style.display = 'inline-block';
             userInfoDisplay.style.display = 'none';
             userFullnameSpan.textContent = '';
-            finalizeBtn.style.display = 'none';
-            adminPanelBtn.style.display = 'none';
+            if(finalizeBtn) finalizeBtn.style.display = 'none';
+            if(adminPanelBtn) adminPanelBtn.style.display = 'none';
             previousUserSelections = [];
             currentSelections = [];
+            if(sectionNav) sectionNav.style.display = 'flex'; // در حالت لاگ اوت، دکمه های ناوبری باید باشند
             regenerateAllTimetables();
         }
-        updateFinalizeButtonState();
+        updateFinalizeButtonState(); // این تابع خودش بررسی می کند که کاربر عادی است یا نه
     }
 
     function getNewSelections() {
@@ -265,14 +291,19 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function updateFinalizeButtonState() {
-        if (!currentUser || selectingForUserByAdmin) {
-            finalizeBtn.disabled = true;
-            finalizeBtn.style.display = currentUser && !selectingForUserByAdmin ? 'inline-block' : 'none';
+        if (!currentUser || currentUser.isAdmin || selectingForUserByAdmin || (adminPanelSection && adminPanelSection.style.display !== 'none' && adminPanelSection.style.display !== '')) {
+            if(finalizeBtn) {
+                finalizeBtn.disabled = true;
+                finalizeBtn.style.display = 'none';
+            }
             return;
         }
-        finalizeBtn.style.display = 'inline-block';
-        finalizeBtn.disabled = getNewSelections().length === 0;
+        if(finalizeBtn) {
+            finalizeBtn.style.display = 'inline-block';
+            finalizeBtn.disabled = getNewSelections().length === 0;
+        }
     }
+
 
     // --- EVENT HANDLERS ---
     sectionNavButtons.forEach(button => {
@@ -283,16 +314,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 selectingForUserByAdmin = null;
                 currentSelections = [];
-                if (adminActionsDiv) adminActionsDiv.style.display = 'flex';
+                showSection('admin-panel-section'); // برای نمایش صحیح دکمه های پنل ادمین
                 handleAdminViewAllUsers();
                 return;
             }
             const sectionId = button.dataset.section + '-section';
             showSection(sectionId);
+            updateFinalizeButtonState(); // اطمینان از وضعیت صحیح دکمه ثبت نهایی
         });
     });
 
-    loginRegisterBtn.addEventListener('click', () => {
+    if(loginRegisterBtn) loginRegisterBtn.addEventListener('click', () => {
         authModal.style.display = 'block';
         loginFormContainer.style.display = 'block';
         registerFormContainer.style.display = 'none';
@@ -313,7 +345,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if(registerForm) registerForm.reset();
         authModal.querySelectorAll('.feedback-message').forEach(el => el.style.display = 'none');
     });
-        if(showLoginLink) showLoginLink.addEventListener('click', (e) => { // ادامه از اینجا
+
+    if(showLoginLink) showLoginLink.addEventListener('click', (e) => {
         e.preventDefault();
         registerFormContainer.style.display = 'none';
         loginFormContainer.style.display = 'block';
@@ -349,11 +382,10 @@ document.addEventListener('DOMContentLoaded', () => {
             authModal.style.display = 'none';
             alert(`کاربر ${currentUser.fullName} با موفقیت وارد شدید.`);
             if (currentUser.isAdmin) {
-                showSection('admin-panel-section');
-                if(adminActionsDiv) adminActionsDiv.style.display = 'flex';
+                showSection('admin-panel-section'); // این تابع sectionNav را مخفی می‌کند
                 handleAdminViewAllUsers();
             } else {
-                showSection('welcome-message');
+                showSection('welcome-message'); // این تابع sectionNav را نمایش می‌دهد
             }
         } else {
             if(feedbackElement) displayFeedback(feedbackElement, result ? result.message : "ورود ناموفق. خطای نامشخص.", 'error');
@@ -390,8 +422,7 @@ document.addEventListener('DOMContentLoaded', () => {
         selectingForUserByAdmin = null;
         currentSelections = [];
         previousUserSelections = [];
-        updateUIForLoginState();
-        if (adminActionsDiv) adminActionsDiv.style.display = 'flex';
+        updateUIForLoginState(); // این تابع sectionNav و finalizeBtn را برای حالت لاگ اوت تنظیم می‌کند
         showSection('welcome-message');
         alert("شما با موفقیت خارج شدید.");
     });
@@ -416,8 +447,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if(finalizeBtn) finalizeBtn.addEventListener('click', async () => {
-        if (!currentUser) { alert("لطفاً ابتدا وارد شوید یا ثبت نام کنید."); loginRegisterBtn.click(); return; }
-        if (selectingForUserByAdmin) return;
+        if (!currentUser) { alert("لطفاً ابتدا وارد شوید یا ثبت نام کنید."); if(loginRegisterBtn) loginRegisterBtn.click(); return; }
+        if (selectingForUserByAdmin || currentUser.isAdmin) return; // این دکمه برای ادمین یا وقتی ادمین در حال انتخاب است، نیست
 
         const newSelectionsToSave = getNewSelections();
         if (newSelectionsToSave.length === 0) { alert("شما زمان جدیدی را انتخاب نکرده‌اید یا تمام انتخاب‌های شما قبلاً ثبت شده‌اند."); return; }
@@ -432,7 +463,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     async function fetchUserPreviousSelections() {
-        if (!currentUser || selectingForUserByAdmin) return;
+        if (!currentUser || selectingForUserByAdmin) return; // فقط برای کاربر لاگین شده عادی
         const result = await callApi('getUserSelections', { userId: currentUser.userId });
         if (result && result.success && result.selections) {
             previousUserSelections = result.selections;
@@ -442,6 +473,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         currentSelections = [];
         regenerateAllTimetables();
+        updateFinalizeButtonState();
     }
 
     // --- ADMIN PANEL FUNCTIONS & HANDLERS ---
@@ -451,12 +483,11 @@ document.addEventListener('DOMContentLoaded', () => {
                  if (confirm("شما در حال انتخاب زمان برای یک کاربر هستید. آیا می‌خواهید به صفحه اصلی پنل ادمین بازگردید؟ تغییرات ذخیره نشده از بین خواهند رفت.")) {
                     selectingForUserByAdmin = null;
                     currentSelections = [];
-                    if (adminActionsDiv) adminActionsDiv.style.display = 'flex';
+                    showSection('admin-panel-section'); // نمایش پنل ادمین
                     handleAdminViewAllUsers();
                 }
             } else {
                 showSection('admin-panel-section');
-                if (adminActionsDiv) adminActionsDiv.style.display = 'flex';
                 handleAdminViewAllUsers();
             }
         } else {
@@ -495,7 +526,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if(adminAddUserForm) adminAddUserForm.reset();
 
             if (confirm(`کاربر ${newUser.fullName} با موفقیت ایجاد شد. آیا می‌خواهید اکنون زمان‌های حضور او را انتخاب کنید؟`)) {
-                viewOrEditUserSelectionsAsAdmin(newUser, true); // true یعنی کاربر جدید است
+                viewOrEditUserSelectionsAsAdmin(newUser, true);
             } else {
                 handleAdminViewAllUsers();
             }
@@ -509,15 +540,14 @@ document.addEventListener('DOMContentLoaded', () => {
         selectingForUserByAdmin = null;
         currentSelections = [];
         showSection('admin-panel-section');
-        if (adminActionsDiv) adminActionsDiv.style.display = 'flex';
 
         adminContentArea.innerHTML = '<h3>لیست تمام کاربران</h3><p>در حال بارگذاری...</p>';
         const result = await callApi('getAllUsers', {}, true);
         adminContentArea.innerHTML = '<h3>لیست تمام کاربران</h3>';
         if (result && result.success && result.users) {
-            const nonAdminUsers = result.users.filter(user => !(user.username.toLowerCase() === "admin" && user.isAdmin));
+            const nonAdminUsers = result.users.filter(user => !(user.username.toLowerCase() === "admin" && user.isAdmin === true));
             if (nonAdminUsers.length === 0) {
-                adminContentArea.innerHTML += '<p>هیچ کاربری (به جز ادمین اصلی) ثبت نشده است.</p>';
+                adminContentArea.innerHTML += '<p>هیچ کاربری (به جز ادمین اصلی سیستم) ثبت نشده است.</p>';
                 return;
             }
             const table = document.createElement('table');
@@ -548,12 +578,17 @@ document.addEventListener('DOMContentLoaded', () => {
     
 
     async function viewOrEditUserSelectionsAsAdmin(userToHandle, isNewUser = false) {
-        if (!currentUser || !currentUser.isAdmin) return;
-        selectingForUserByAdmin = userToHandle; // اینجا userToHandle باید شامل userId باشد
+        if (!currentUser || !currentUser.isAdmin || !userToHandle || !userToHandle.userId) {
+            console.error("Invalid call to viewOrEditUserSelectionsAsAdmin", currentUser, userToHandle);
+            alert("خطا: اطلاعات کاربر برای ویرایش ناقص است.");
+            return;
+        }
+        selectingForUserByAdmin = userToHandle;
+        userToHandle.isNewUserContext = isNewUser; // برای استفاده در handleCheckboxChangeForAdminEdit
         currentSelections = [];
 
         showLoading(true);
-        showSection('admin-panel-section');
+        showSection('admin-panel-section'); // این تابع sectionNav را مخفی می‌کند
         if (adminActionsDiv) adminActionsDiv.style.display = 'none';
         
         adminContentArea.innerHTML = `<h3>انتخاب/ویرایش زمان برای کاربر: ${userToHandle.fullName} (نام کاربری: ${userToHandle.username})</h3>
@@ -594,11 +629,11 @@ document.addEventListener('DOMContentLoaded', () => {
         finalizeButtonForAdmin.addEventListener('click', async () => {
             if (!selectingForUserByAdmin) { alert("خطا: کاربر نامشخص است."); return; }
 
-            if (currentSelections.length === 0 && userPreviousSelectionsForTable.length > 0 && !isNewUser) {
+            if (currentSelections.length === 0 && userPreviousSelectionsForTable.length > 0 && !selectingForUserByAdmin.isNewUserContext) {
                  if(!confirm("شما تمام زمان‌های انتخابی این کاربر را برداشته‌اید. آیا از حذف تمام انتخاب‌های او مطمئن هستید؟")){
                     return;
                  }
-            } else if (currentSelections.length === 0 && isNewUser) { // اگر کاربر جدید است و هیچ زمانی انتخاب نشده
+            } else if (currentSelections.length === 0 && selectingForUserByAdmin.isNewUserContext) {
                 alert("هیچ زمانی برای کاربر جدید انتخاب نشده است. لطفاً حداقل یک زمان را انتخاب کنید یا از عملیات صرف نظر کنید.");
                 return;
             }
@@ -612,7 +647,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 alert(resultSave.message || `انتخاب‌ها برای کاربر ${selectingForUserByAdmin.fullName} با موفقیت ذخیره/به‌روزرسانی شد.`);
                 selectingForUserByAdmin = null; 
                 currentSelections = [];
-                if(adminActionsDiv) adminActionsDiv.style.display = 'flex';
+                showSection('admin-panel-section'); // برای نمایش مجدد دکمه‌های پنل ادمین
                 handleAdminViewAllUsers(); 
             } else {
                 alert(`خطا در ذخیره‌سازی انتخاب‌ها: ${resultSave ? resultSave.message : 'خطای ناشناخته'}`);
@@ -629,7 +664,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (confirm("آیا مطمئن هستید که می‌خواهید بدون ذخیره تغییرات بازگردید؟")) {
                 selectingForUserByAdmin = null;
                 currentSelections = [];
-                if(adminActionsDiv) adminActionsDiv.style.display = 'flex';
+                showSection('admin-panel-section');
                 handleAdminViewAllUsers();
             }
         };
@@ -650,41 +685,32 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         const finalizeButtonForAdmin = document.getElementById('finalize-selections-for-user-by-admin-btn');
-        if (finalizeButtonForAdmin) {
-            // دکمه باید فعال باشد اگر تغییری نسبت به حالت اولیه (previous selections for this user) ایجاد شده باشد
-            // یا اگر کاربر جدید است و حداقل یک انتخاب دارد
-            let originalSelectionsForThisUser = [];
-            if (selectingForUserByAdmin && !selectingForUserByAdmin.isNewUserContext) { // isNewUserContext باید هنگام فراخوانی viewOrEditUserSelectionsAsAdmin برای کاربر جدید true باشد
-                 // برای پیدا کردن انتخاب‌های اولیه کاربر در حال ویرایش، باید دوباره آنها را از یک منبع معتبر خواند یا ذخیره کرد
-                 // فعلا فرض می‌کنیم userPreviousSelectionsForTable که به generateTimetable پاس داده شده، معتبر است
-                 // این بخش نیاز به بازنگری دارد برای مقایسه دقیق با حالت اولیه در زمان ویرایش
-            }
-
-            let hasChangedOrIsNewWithSelections = false;
-            if(selectingForUserByAdmin){ // اگر در حال انتخاب برای یک کاربر خاص هستیم
-                // یک راه ساده برای بررسی تغییر: آیا طول آرایه‌ها متفاوت است یا محتوای آنها
-                // این مقایسه برای فعال/غیرفعال کردن دکمه است و ممکن است خیلی دقیق نباشد اگر ترتیب مهم باشد
-                // اما برای این مورد کافی به نظر می‌رسد
-                const originalSels = []; // باید انتخاب‌های اولیه کاربر در حال ویرایش را اینجا داشته باشیم
-                                        // که در viewOrEditUserSelectionsAsAdmin در userPreviousSelectionsForTable لود می‌شود.
-                                        // این بخش از منطق فعال/غیرفعال کردن دکمه پیچیده شده و باید ساده‌تر شود.
-                                        // فعلا، دکمه را فعال می‌کنیم اگر currentSelections خالی نباشد یا اگر خالی است ولی قبلا انتخاباتی بوده (یعنی همه حذف شده‌اند)
-
-                const prevSelsForThisUser = []; // باید از جایی لود شود یا از پارامترها بیاید.
-                                               // در viewOrEditUserSelectionsAsAdmin اینها در userPreviousSelectionsForTable هستند.
-                
-                // ساده‌سازی: اگر انتخاباتی هست، دکمه فعال باشه. اگر نیست و قبلا هم نبوده، غیرفعال. اگر نیست ولی قبلا بوده، فعال (برای حذف همه).
-                const hadPreviousSelections = document.querySelectorAll(`#admin-content-area .selected-previously-admin-view`).length > 0;
-
-                if (currentSelections.length > 0) {
+        if (finalizeButtonForAdmin && selectingForUserByAdmin) {
+            let originalSelectionsLength = 0;
+            if (!selectingForUserByAdmin.isNewUserContext) {
+                // برای به دست آوردن تعداد انتخاب های اولیه کاربر در حال ویرایش
+                // این بخش باید انتخاب های اولیه کاربر را از جایی که ذخیره شده اند (مثلا pUserSelections در generateTimetable) بخواند
+                // برای سادگی، فعلا فرض می کنیم اگر کاربر جدید نیست، ممکن است انتخاب اولیه داشته باشد
+                // این بخش از منطق فعال/غیرفعال کردن دکمه نیاز به دقت بیشتری دارد
+                // یک راه ساده: اگر currentSelections با previousSelections (که موقع لود صفحه گرفته شده) متفاوت است، دکمه فعال شود
+                // اما previousSelections در این context مستقیما در دسترس نیست.
+                // راه حل موقت: دکمه فعال باشد اگر انتخاباتی وجود دارد یا اگر همه انتخاب‌ها حذف شده‌اند (از حالت قبلی)
+                 const initialSelectionsForThisUser = []; // این باید از جایی که انتخاب‌های اولیه کاربر ذخیره شده مقداردهی شود
+                 // در تابع viewOrEditUserSelectionsAsAdmin، این مقدار در userPreviousSelectionsForTable است
+                 // باید این مقدار به نحوی به اینجا برسد یا دوباره خوانده شود
+                 // فعلا یک منطق ساده تر:
+                 if (currentSelections.length > 0) {
                     finalizeButtonForAdmin.disabled = false;
-                } else { // currentSelections is empty
-                    if (hadPreviousSelections) { // User deselected everything
-                        finalizeButtonForAdmin.disabled = false;
-                    } else { // No current selections and no previous ones
-                        finalizeButtonForAdmin.disabled = true;
-                    }
-                }
+                 } else { // currentSelections.length === 0
+                    // اگر کاربر جدید نیست و قبلا انتخاب داشته، یعنی همه را حذف کرده
+                    const wasEditingExistingUserWithSelections = !selectingForUserByAdmin.isNewUserContext && document.querySelectorAll(`#admin-content-area input[type="checkbox"][data-initial-checked="true"]`).length > 0; 
+                    // data-initial-checked باید هنگام ساخت جدول برای انتخاب های قبلی ست شود
+                    // این پیچیده می شود. ساده ترین حالت:
+                    finalizeButtonForAdmin.disabled = false; // اجازه می دهیم کاربر "ذخیره" را بزند حتی اگر همه را حذف کرده
+                 }
+
+            } else if (selectingForUserByAdmin.isNewUserContext) { // کاربر جدید
+                finalizeButtonForAdmin.disabled = currentSelections.length === 0;
             }
         }
     }
@@ -696,7 +722,6 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
         showSection('admin-panel-section');
-        if (adminActionsDiv) adminActionsDiv.style.display = 'flex';
 
         adminContentArea.innerHTML = '<h3>گزارش تجمیعی حضور (تعداد نفرات در هر بازه)</h3><p>در حال بارگذاری...</p>';
         const result = await callApi('getAggregatedReport', {}, true);
@@ -751,7 +776,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const mainContent = document.querySelector('main');
             const errorHtml = `<h1 style='color:red; text-align:center; margin-top: 50px;'>${configErrorMessage}</h1>`;
             if (mainContent) { mainContent.innerHTML = errorHtml; } else { document.body.innerHTML = errorHtml; }
-            document.querySelectorAll('button:not(.close-btn)').forEach(btn => btn.disabled = true); // close-btn مودال باید کار کند
+            document.querySelectorAll('button:not(.close-btn)').forEach(btn => btn.disabled = true);
             return;
         }
         showInitialWelcome();
@@ -764,9 +789,7 @@ document.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => {
                 overlay.classList.add('hidden');
                 document.body.style.overflow = 'auto';
-                // Optional: remove overlay from DOM after animation
-                // setTimeout(() => { if (overlay.parentNode) overlay.parentNode.removeChild(overlay); }, 700);
-            }, 4000); // Show for 4 seconds
+            }, 4000);
         }
     }
 
