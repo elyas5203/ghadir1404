@@ -388,27 +388,70 @@ main.container { /* Apply container to main for centering content */
 
 
 /* --- Admin Panel --- */
+#admin-panel-section {
+    display: flex;
+    flex-direction: column;
+    /* min-height: 70vh; /* Consider if a minimum height is needed */
+}
+
 #admin-panel-section h2 {
     border-bottom: 2px solid var(--accent-color);
     padding-bottom: 10px;
     color: var(--accent-color);
     text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+    margin-bottom: 15px; /* Adjusted from previous if needed */
 }
-.admin-actions { margin-bottom: 25px; display: flex; gap: 15px; flex-wrap: wrap; justify-content: center; }
-.admin-actions button { background-color: var(--secondary-color); color: white; padding: 10px 20px; }
-.admin-actions button:hover { background-color: var(--primary-color); }
 
-#admin-content-area h3 { color: var(--primary-color); } /* Ensure admin content headers are readable */
-#admin-content-area p { color: var(--text-light-color); opacity: 0.9; } /* Admin content text */
-#admin-content-area table { width: 100%; border-collapse: separate; border-spacing: 0; margin-top: 20px; font-size: 0.9rem; }
-#admin-content-area th, #admin-content-area td { border: 1px solid rgba(255,255,255,0.15); padding: 10px; text-align: right; color: var(--text-light-color); }
+.admin-actions {
+    margin-bottom: 20px;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+    /* The following are for potential sticky behavior, enable if desired and test thoroughly */
+    /* position: sticky; */
+    /* top: calc(var(--header-height, 100px) + 10px); /* Ensure --header-height is defined or use a fallback */
+    /* background-color: var(--surface-color); /* Important for backdrop-filter with sticky */
+    /* padding: 10px 0; */ /* Add padding if sticky */
+    /* z-index: 900; */
+}
+
+.admin-actions button {
+    background-color: var(--secondary-color);
+    color: white;
+    padding: 10px 15px;
+    flex-grow: 1; /* Help buttons distribute space */
+    flex-basis: 200px; /* Give a base width before growing */
+    min-width: 180px; /* Minimum width for readability */
+    box-shadow: var(--box-shadow-light);
+}
+.admin-actions button:hover {
+    background-color: var(--primary-color);
+}
+
+#admin-content-area {
+    flex-grow: 1; /* Allows this area to take up remaining vertical space */
+    overflow-y: auto; /* Enables vertical scrolling ONLY for this area if content exceeds its height */
+    padding: 10px; /* Add some internal padding */
+    border-radius: var(--border-radius);
+    /* background-color: rgba(0,0,0,0.03); /* Optional: slight visual distinction */
+}
+
+
+#admin-content-area h3 { color: var(--primary-color); }
+#admin-content-area p { color: var(--text-light-color); opacity: 0.9; }
+#admin-content-area table { width: 100%; border-collapse: separate; border-spacing: 0; margin-top: 15px; font-size: 0.9rem; }
+#admin-content-area th, #admin-content-area td { border: 1px solid rgba(255,255,255,0.15); padding: 8px; text-align: right; color: var(--text-light-color); }
 #admin-content-area th { background-color: rgba(0, 105, 92, 0.4); font-weight: 600; color: var(--text-on-primary); }
 
 #admin-content-area .admin-users-table button.admin-action-button,
-button.admin-action-button {
-    background-color: var(--primary-color); color: white; padding: 6px 12px; font-size: 0.85rem;
+button.admin-action-button { /* This global rule for admin-action-button is applied widely */
+    background-color: var(--primary-color); color: white; padding: 6px 10px; font-size: 0.8rem;
+    margin-top: 5px;
+    border-radius: calc(var(--border-radius) - 4px); /* Slightly smaller radius for inner buttons */
 }
 button.admin-action-button:hover { background-color: var(--secondary-color); }
+
 .admin-user-selections-list { list-style: none; padding-right: 0; }
 .admin-user-selections-list li { background-color: rgba(255,255,255,0.1); padding: 8px 12px; margin-bottom: 5px; border-radius: var(--border-radius); border-right: 4px solid var(--secondary-color); color: var(--text-light-color); }
 .admin-aggregated-report .report-section-block { margin-bottom: 25px; padding: 15px; background-color: var(--surface-color); border-radius: var(--border-radius); }
@@ -453,7 +496,7 @@ footer p { margin: 0; }
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.85); /* Dark overlay to make text readable over any background part */
+    background-color: rgba(0, 0, 0, 0.85);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -473,7 +516,7 @@ footer p { margin: 0; }
     font-size: 1.5rem;
     line-height: 1.8;
     max-width: 700px;
-    text-shadow: 1px 1px 3px rgba(255,255,255,0.2), 2px 2px 5px rgba(0,0,0,0.7); /* Enhance readability */
+    text-shadow: 1px 1px 3px rgba(255,255,255,0.2), 2px 2px 5px rgba(0,0,0,0.7);
     animation: fadeInText 1.5s ease-in-out;
 }
 .welcome-text-container p {
@@ -486,17 +529,17 @@ footer p { margin: 0; }
 
 
 /* --- Responsive Adjustments --- */
-@media (max-width: 992px) {
-    body { padding-top: 80px; }
+@media (max-width: 992px) { /* Tablets and larger phones */
+    body { padding-top: 80px; /* Approximate header height for tablets */ }
     .header-content { flex-direction: column; align-items: center; }
     .logo-area { margin-bottom: 15px; text-align: center; }
     #section-nav, #user-actions { width: 100%; justify-content: center; margin-bottom: 10px; }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 768px) { /* Smaller tablets and mobile */
     html { font-size: 15px; }
     body {
-        padding-top: 150px;
+        padding-top: 150px; /* Increased padding for potentially taller header on mobile when items wrap */
     }
     .logo-area h1 { font-size: 1.3rem; }
     #section-nav button, #user-actions button { font-size: 0.85rem; padding: 8px 10px; flex-grow: 1; margin: 0 2px; }
@@ -504,21 +547,35 @@ footer p { margin: 0; }
     #user-info { width: 100%; justify-content: center; margin-top: 5px; }
     .modal-content { width: 95%; margin: 10% auto; padding: 20px; }
     .time-table th, .time-table td { padding: 10px 8px; font-size: 0.8rem; }
-    .admin-actions { flex-direction: column; }
-    .admin-actions button { width: 100%; margin-bottom: 10px; }
+    
+    .admin-actions {
+        flex-direction: column; /* Stack admin buttons on mobile */
+        gap: 8px; /* Reduce gap for stacked buttons */
+    }
+    .admin-actions button {
+        width: 100%; /* Make buttons full width when stacked */
+        margin-bottom: 8px;
+        flex-grow: 0; /* Reset flex-grow for stacked layout */
+    }
     .welcome-text-container { font-size: 1.2rem; }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 480px) { /* Small mobile phones */
     html { font-size: 14px; }
     body {
-        padding-top: 180px;
+        padding-top: 180px; /* Max padding for header on small mobile due to stacking */
     }
     .container { width: 95%; padding: 0 10px; }
     .logo-area h1 { font-size: 1.2rem; }
     .logo-area p { font-size: 0.75rem; }
-    #section-nav, #user-actions { flex-direction: column; }
-    #section-nav button, #user-actions button { width: 100%; margin-bottom: 8px; }
+
+    #section-nav, #user-actions {
+        flex-direction: column; /* Stack section nav fully on very small screens */
+    }
+    #section-nav button, #user-actions button {
+        width: 100%;
+        margin-bottom: 8px;
+    }
     .time-table input[type="checkbox"] { transform: scale(1.1); }
     #sticky-header { padding: 10px 0; }
     .welcome-text-container { font-size: 1.1rem; }
