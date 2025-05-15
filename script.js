@@ -489,7 +489,50 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.body.style.overflow = 'auto';
             }, 4000);
         }
+    }// ... (بقیه کد script.js شما بدون تغییر باقی می ماند) ...
+
+    // --- INITIALIZATION ---
+    function init() {
+        const placeholderUrlPart = "YOUR_DEPLOYMENT_ID";
+        if (!SCRIPT_URL || SCRIPT_URL.includes(placeholderUrlPart) || SCRIPT_URL.toLowerCase().includes("YOUR_APPS_SCRIPT_URL_HERE") || SCRIPT_URL.length < 70 || (SCRIPT_URL.endsWith("/exec") && SCRIPT_URL.split('/').slice(-2, -1)[0].length < 30)) {
+            const configErrorMessage = "خطای پیکربندی: URL مربوط به Apps Script به درستی تنظیم نشده است.";
+            alert(configErrorMessage);
+            showLoading(false);
+            const mainContent = document.querySelector('main.container');
+            const errorHtml = `<h1 style='color:red; text-align:center; margin-top: 50px;'>${configErrorMessage}</h1>`;
+            if (mainContent) { mainContent.innerHTML = errorHtml; } else { document.body.innerHTML = errorHtml; }
+            document.querySelectorAll('button:not(.close-btn)').forEach(btn => btn.disabled = true);
+            return;
+        }
+        
+        regenerateAllTimetablesForUserView();
+        updateAdminUI();
+        // showContent('user-view'); // این توسط updateAdminUI() در ابتدا مدیریت می شود.
+        showInitialWelcomeOverlay(); // فراخوانی تابع نمایش overlay
+    }
+
+    function showInitialWelcomeOverlay() {
+        const overlay = document.getElementById('initial-welcome-overlay');
+        if (overlay) {
+            // جلوگیری از اسکرول تا زمانی که overlay نمایش داده می‌شود
+            document.body.style.overflow = 'hidden';
+            
+            // اطمینان از اینکه overlay در ابتدا قابل مشاهده است (اگر قبلا display:none داشته)
+            overlay.style.display = 'flex'; 
+            overlay.style.opacity = '1'; // اطمینان از opacity کامل
+            
+            setTimeout(() => {
+                overlay.style.opacity = '0'; // شروع انیمیشن محو شدن
+                // پس از اتمام انیمیشن محو شدن (که 0.7 ثانیه طول می کشد طبق CSS)
+                // overlay را به طور کامل از جریان صفحه حذف کرده و اسکرول را باز می گردانیم
+                setTimeout(() => {
+                    overlay.style.display = 'none'; // حذف کامل از نمایش
+                    document.body.style.overflow = 'auto'; // بازگرداندن اسکرول
+                }, 700); // این زمان باید با transition-duration در CSS هماهنگ باشد
+            }, 4000); // نمایش به مدت ۴ ثانیه قبل از شروع محو شدن
+        }
     }
 
     init();
 });
+
