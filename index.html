@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>خدمت‌گزاران جشن غدیر</title>
+    <title>همیاران جشن غدیر - ثبت زمان</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;700&display=swap" rel="stylesheet">
 </head>
@@ -13,57 +13,73 @@
             <div class="logo-area">
                 <h1>همیاران جشن بزرگ غدیر</h1>
             </div>
-            <nav id="section-nav">
-                <button class="nav-btn" data-section="sakht">ساخت</button>
-                <button class="nav-btn" data-section="ejra">اجرا</button>
-                <button class="nav-btn" data-section="jamavari">جمع آوری</button>
-            </nav>
+            <!-- nav id="section-nav" حذف شد -->
             <div id="user-actions">
-                <button id="login-register-btn">ورود / ثبت نام</button>
-                <div id="user-info" style="display: none;">
-                    <span id="user-fullname-display"></span>
-                    <button id="logout-btn">خروج</button>
-                </div>
-                <button id="admin-panel-btn" style="display: none;">پنل ادمین</button>
-                <button id="finalize-btn" style="display: none;" disabled>ثبت نهایی انتخاب‌ها</button>
+                <!-- دکمه ورود/ثبت نام و اطلاعات کاربر حذف شد -->
+                <!-- دکمه پنل ادمین موقتا باقی می‌ماند تا دسترسی به آن حفظ شود، اما عملکردش تغییر خواهد کرد -->
+                <button id="admin-panel-btn" style="display: none;">پنل ادمین (موقت)</button>
+                <button id="finalize-btn" disabled>ثبت نهایی انتخاب‌ها</button>
             </div>
         </div>
     </header>
 
     <main class="container">
         <section id="welcome-message" class="content-section active-section">
-            <h2>به سامانه ثبت‌نام خادمین جشن غدیر خوش آمدید!</h2>
-            <p>لطفاً برای اعلام آمادگی جهت همکاری، یکی از بخش‌های بالا (ساخت، اجرا، جمع آوری) را انتخاب کرده و زمان‌های مورد نظر خود را مشخص نمایید.</p>
-            <p>پس از انتخاب زمان‌ها، روی دکمه "ثبت نهایی انتخاب‌ها" در بالای صفحه کلیک کنید. اگر وارد نشده باشید، ابتدا از شما خواسته می‌شود وارد شوید یا ثبت‌نام کنید.</p>
+            <h2>به سامانه ثبت زمان همیاران جشن غدیر خوش آمدید!</h2>
+            <p>لطفاً در جداول زیر، زمان‌های مورد نظر خود را برای همکاری در بخش‌های مختلف مشخص نمایید.</p>
+            <p>پس از انتخاب زمان‌ها، روی دکمه "ثبت نهایی انتخاب‌ها" در بالای صفحه کلیک کنید.</p>
         </section>
 
-        <section id="sakht-section" class="content-section time-table-section">
+        <!-- جداول به صورت عمودی نمایش داده می‌شوند -->
+        <section id="sakht-section" class="content-section time-table-section always-visible-section">
             <h2>بخش ساخت و آماده‌سازی</h2>
             <div id="sakht-table-container" class="table-container">
                 <!-- جدول زمان‌بندی ساخت اینجا توسط جاوااسکریپت ایجاد می‌شود -->
             </div>
         </section>
 
-        <section id="ejra-section" class="content-section time-table-section">
+        <section id="ejra-section" class="content-section time-table-section always-visible-section">
             <h2>بخش اجرا</h2>
             <div id="ejra-table-container" class="table-container">
                 <!-- جدول زمان‌بندی اجرا اینجا توسط جاوااسکریپت ایجاد می‌شود -->
             </div>
         </section>
 
-        <section id="jamavari-section" class="content-section time-table-section">
+        <section id="jamavari-section" class="content-section time-table-section always-visible-section">
             <h2>بخش جمع آوری</h2>
             <div id="jamavari-table-container" class="table-container">
                 <!-- جدول زمان‌بندی جمع آوری اینجا توسط جاوااسکریپت ایجاد می‌شود -->
             </div>
         </section>
 
+        <!-- مودال جدید برای دریافت اطلاعات کاربر (نام، شماره تماس) -->
+        <div id="user-data-modal" class="modal">
+            <div class="modal-content">
+                <span class="close-btn" id="close-user-data-modal">×</span>
+                <h3>ثبت اطلاعات جهت نهایی‌سازی</h3>
+                <form id="user-data-form">
+                    <label for="user-fullname-input">نام و نام خانوادگی: <span style="color:red;">*</span></label>
+                    <input type="text" id="user-fullname-input" name="user-fullname-input" required>
+
+                    <label for="user-phone-input">شماره تماس: <span style="color:red;">*</span> (مثال: 09123456789)</label>
+                    <input type="tel" id="user-phone-input" name="user-phone-input" required pattern="09[0-9]{9}" title="شماره موبایل معتبر مانند 09123456789">
+                    
+                    <div class="feedback-message" id="user-data-feedback" style="display:none;"></div>
+                    <button type="submit" id="submit-user-data-and-selections">ارسال و ثبت نهایی</button>
+                </form>
+            </div>
+        </div>
+
+
+        <!-- پنل ادمین بدون تغییر ساختاری باقی می‌ماند، اما عملکردش در JS تغییر می‌کند -->
         <section id="admin-panel-section" class="content-section" style="display:none;">
             <h2>پنل مدیریت</h2>
             <div class="admin-actions">
-                <button id="admin-add-user-btn">تعریف کاربر جدید</button>
-                <button id="admin-view-all-users-btn">مشاهده لیست کاربران</button>
+                <!-- دکمه تعریف کاربر جدید توسط ادمین حذف می‌شود چون سیستم ثبت‌نام تغییر کرده -->
+                <!-- <button id="admin-add-user-btn">تعریف کاربر جدید</button> -->
+                <button id="admin-view-all-users-btn">مشاهده لیست ثبت‌نام‌کنندگان</button>
                 <button id="admin-view-aggregated-report-btn">گزارش تجمیعی حضور</button>
+                <button id="logout-admin-btn" style="display:none; background-color: var(--danger-color);">خروج از پنل ادمین</button>
             </div>
             <div id="admin-content-area">
                 <!-- محتوای بخش‌های مختلف ادمین اینجا نمایش داده می‌شود -->
@@ -71,58 +87,19 @@
         </section>
     </main>
 
-    <!-- مودال ورود/ثبت نام -->
-    <div id="auth-modal" class="modal">
+    <!-- مودال ورود ادمین (سابقاً auth-modal) -->
+    <div id="admin-login-modal" class="modal">
         <div class="modal-content">
-            <span class="close-btn">×</span>
-            <div id="login-form-container">
-                <h3>ورود به حساب کاربری</h3>
-                <form id="login-form">
-                    <label for="login-username">نام کاربری:</label>
-                    <input type="text" id="login-username" name="login-username" required>
-                    <label for="login-password">رمز عبور:</label>
-                    <input type="password" id="login-password" name="login-password" required>
-                    <div class="feedback-message" style="display:none;"></div>
-                    <button type="submit">ورود</button>
-                    <p>حساب کاربری ندارید؟ <a href="#" id="show-register-link">ثبت نام کنید</a></p>
-                </form>
-            </div>
-            <div id="register-form-container" style="display:none;">
-                <h3>ثبت نام کاربر جدید</h3>
-                <form id="register-form">
-                    <label for="reg-fullname">نام و نام خانوادگی: <span style="color:red;">*</span></label>
-                    <input type="text" id="reg-fullname" name="reg-fullname" required>
-
-                    <label for="reg-phone">شماره تماس: <span style="color:red;">*</span> (مثال: 09123456789)</label>
-                    <input type="tel" id="reg-phone" name="reg-phone" required pattern="09[0-9]{9}" title="شماره موبایل معتبر مانند 09123456789">
-
-                    <label for="reg-username">نام کاربری (می‌تواند نام کامل شما باشد): <span style="color:red;">*</span></label>
-                    <input type="text" id="reg-username" name="reg-username" required>
-                    <div id="username-feedback" class="feedback-message" style="display:none;"></div>
-
-                    <label for="reg-password">رمز عبور (حداقل ۳ کاراکتر): <span style="color:red;">*</span></label>
-                    <input type="password" id="reg-password" name="reg-password" required minlength="3">
-                    <div class="feedback-message" style="display:none;"></div>
-                    <button type="submit">ثبت نام</button>
-                    <p>قبلاً ثبت نام کرده‌اید؟ <a href="#" id="show-login-link">وارد شوید</a></p>
-                </form>
-            </div>
-            <div id="admin-add-user-form-container" style="display:none;">
-                <h3>تعریف کاربر جدید توسط ادمین</h3>
-                <form id="admin-add-user-form">
-                    <label for="admin-reg-fullname">نام و نام خانوادگی: <span style="color:red;">*</span></label>
-                    <input type="text" id="admin-reg-fullname" name="admin-reg-fullname" required>
-
-                    <label for="admin-reg-phone">شماره تماس: <span style="color:red;">*</span></label>
-                    <input type="tel" id="admin-reg-phone" name="admin-reg-phone" required pattern="09[0-9]{9}" title="شماره موبایل معتبر مانند 09123456789">
-
-                    <label for="admin-reg-username">نام کاربری: <span style="color:red;">*</span></label>
-                    <input type="text" id="admin-reg-username" name="admin-reg-username" required>
-
-                    <label for="admin-reg-password">رمز عبور (حداقل ۳ کاراکتر): <span style="color:red;">*</span></label>
-                    <input type="password" id="admin-reg-password" name="admin-reg-password" required minlength="3">
-                    <div class="feedback-message" style="display:none;"></div>
-                    <button type="submit">ایجاد کاربر</button>
+            <span class="close-btn" id="close-admin-login-modal">×</span>
+            <div id="login-form-container"> <!-- از همین کانتینر برای فرم ورود ادمین استفاده می‌کنیم -->
+                <h3>ورود به پنل مدیریت</h3>
+                <form id="admin-login-form">
+                    <label for="admin-login-username">نام کاربری ادمین:</label>
+                    <input type="text" id="admin-login-username" name="admin-login-username" required value="admin">
+                    <label for="admin-login-password">رمز عبور ادمین:</label>
+                    <input type="password" id="admin-login-password" name="admin-login-password" required>
+                    <div class="feedback-message" id="admin-login-feedback" style="display:none;"></div>
+                    <button type="submit">ورود ادمین</button>
                 </form>
             </div>
         </div>
@@ -131,8 +108,6 @@
     <div id="loading-spinner" class="loading-spinner-overlay" style="display: none;">
         <div class="spinner"></div>
     </div>
-
-   
 
     <div id="initial-welcome-overlay">
         <div class="welcome-text-container">
