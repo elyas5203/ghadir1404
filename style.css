@@ -256,7 +256,7 @@ main.container {
 
 /* --- Timetable Styling (for user view) --- */
 .time-table-section .table-container {
-    overflow-x: auto; 
+    overflow-x: auto; /* اسکرول افقی در صورت نیاز (اگر چرخش و کوچک سازی کافی نبود) */
     -webkit-overflow-scrolling: touch;
     padding-bottom: 10px;
     margin-bottom: 10px;
@@ -265,42 +265,85 @@ main.container {
     border: 1px solid rgba(255, 255, 255, 0.1);
 }
 .time-table-section .time-table {
-    width: 100%; border-collapse: separate; border-spacing: 0;
+    width: 100%; 
+    border-collapse: separate; /* separate بهتر از collapse برای border-radius کار می‌کند */
+    border-spacing: 0;
     margin-top: 10px; 
     font-size: 0.9rem; 
-    min-width: 600px; 
+    /* min-width: 600px; <<<< این حذف شد تا جدول سعی کند در عرض صفحه جا شود */
+    table-layout: fixed; /* مهم برای کنترل عرض ستون ها */
 }
 .time-table-section .time-table th,
 .time-table-section .time-table td {
-    border: 1px solid rgba(255, 255, 255, 0.15); padding: 10px 8px;
-    text-align: center; color: var(--text-light-color);
+    border: 1px solid rgba(255, 255, 255, 0.15); 
+    padding: 8px 2px; /* پدینگ افقی خیلی کم */
+    text-align: center; 
+    color: var(--text-light-color);
     vertical-align: middle; 
+    word-break: break-word; /* اگر متن ساعت خیلی طولانی شد، بشکند (برای اطمینان) */
 }
 .time-table-section .time-table tr:first-child th:first-child { border-top-left-radius: var(--border-radius); }
 .time-table-section .time-table tr:first-child th:last-child { border-top-right-radius: var(--border-radius); }
 .time-table-section .time-table tr:last-child td:first-child { border-bottom-left-radius: var(--border-radius); }
 .time-table-section .time-table tr:last-child td:last-child { border-bottom-right-radius: var(--border-radius); }
 
-.time-table-section .time-table th {
-    background-color: rgba(0, 105, 92, 0.4); font-weight: 600; color: var(--text-on-primary);
-    white-space: nowrap;
+.time-table-section .time-table th { /* هدر ستون های ساعت */
+    background-color: rgba(0, 105, 92, 0.4); 
+    font-weight: 500; /* کمی سبک تر */
+    color: var(--text-on-primary);
+    white-space: normal; /* اجازه شکستن متن اگر لازم باشد */
+    font-size: 0.7rem; /* فونت کوچکتر برای هدر ساعت ها */
+    height: 70px; /* ارتفاع بیشتر برای جای دادن متن چرخانده شده */
+    position: relative;
 }
-.time-table-section .time-table .day-header { 
-    background-color: rgba(0, 137, 123, 0.5); color: var(--text-on-primary);
-    font-weight: bold; white-space: nowrap;
+
+/* استایل برای چرخاندن متن هدر ستون ها */
+.time-table-section .time-table th > div.rotated-header {
+    transform: rotate(-75deg);
+    transform-origin: center center; /* چرخیدن حول مرکز */
+    white-space: nowrap;
+    position: absolute;
+    bottom: 5px; /* تنظیم موقعیت متن چرخانده شده */
+    left: 50%;
+    width: auto; /* عرض خودکار بر اساس محتوا */
+    display: inline-block;
+    padding: 0;
+    line-height: 1;
+    /* برای محاسبه صحیح transform-origin و جلوگیری از بیرون زدن متن، ممکن است نیاز به تنظیمات دقیق تر باشد */
+    /* یک راه دیگر استفاده از writing-mode است اما پشتیبانی مرورگرها متفاوت است */
+}
+
+
+.time-table-section .time-table .day-header { /* هدر روز در سمت راست */
+    background-color: rgba(0, 137, 123, 0.5); 
+    color: var(--text-on-primary);
+    font-weight: bold; 
+    white-space: nowrap;
     text-align: right !important; 
-    padding-right: 15px !important;
-    min-width: 100px; 
+    padding-right: 8px !important; /* پدینگ کمتر */
+    font-size: 0.8rem; /* فونت کوچکتر برای روزها */
+    width: 25%; /* تخصیص عرض بیشتر به ستون روز */
 }
 .time-table-section .time-table th.day-header-main { 
      background-color: rgba(0, 80, 70, 0.5); 
-     min-width: 120px;
+     width: 25%; /* هماهنگ با ستون روز */
+     font-size: 0.8rem;
 }
 
+/* تخصیص عرض مساوی به ستون های ساعت */
+.time-table-section .time-table td:not(.day-header),
+.time-table-section .time-table th:not(.day-header-main) {
+    width: calc(75% / 4); /* اگر 4 ستون ساعت داریم و 25% برای روز */
+}
+/* اگر 3 ستون ساعت بود: width: calc(75% / 3); */
+
+
 .time-table-section .time-table input[type="checkbox"] {
-    transform: scale(1.3); 
-    cursor: pointer; accent-color: var(--accent-color);
-    margin: 0; 
+    transform: scale(1.1); /* کمی کوچکتر */
+    cursor: pointer; 
+    accent-color: var(--accent-color);
+    margin: 0 auto; /* وسط چین کردن چک باکس */
+    display: block; /* برای کارکردن margin auto */
 }
 .time-table-section .time-table input[type="checkbox"]:disabled { cursor: not-allowed; opacity: 0.6; }
 .time-table-section .time-table td.selected-previously,
@@ -435,16 +478,15 @@ footer p { margin: 0; }
     width: 100%;
     height: 100%;
     background-color: rgba(0, 0, 0, 0.85);
-    display: flex; /* در ابتدا flex برای نمایش صحیح */
+    display: flex; 
     justify-content: center;
     align-items: center;
     z-index: 10000;
-    opacity: 1; /* در ابتدا کاملا پیدا */
-    transition: opacity 0.7s ease-out; /* فقط transition برای opacity */
+    opacity: 1; 
+    transition: opacity 0.7s ease-out; 
     text-align: center;
     padding: 20px;
 }
-/* کلاس .hidden دیگر برای کنترل visibility استفاده نمی‌شود، display توسط JS کنترل خواهد شد */
 
 .welcome-text-container {
     color: var(--text-light-color);
@@ -465,11 +507,12 @@ footer p { margin: 0; }
 
 /* --- Responsive Adjustments --- */
 @media (max-width: 768px) { /* Mobile and smaller tablets */
-    html { font-size: 15px; }
-    body { padding-top: calc(var(--header-height) + 10px); }
-    .logo-area h1 { font-size: 1.3rem; }
-    #user-actions button { font-size: 0.9rem; padding: 8px 12px;}
-    #user-actions #finalize-btn { min-width: 140px; text-align: center; }
+    html { font-size: 14px; } /* فونت کلی کمی کوچکتر */
+    body { padding-top: calc(var(--header-height) + 5px); } /* کمی پدینگ بیشتر اگر هدر شلوغ شود */
+    .logo-area h1 { font-size: 1.2rem; }
+    #user-actions button { font-size: 0.85rem; padding: 7px 10px;}
+    #user-actions #finalize-btn { min-width: auto; padding: 7px 12px; }
+
 
     .modal-content { width: 95%; margin: 10% auto; padding: 20px; }
     
@@ -484,17 +527,43 @@ footer p { margin: 0; }
     }
 
     .time-table-section .time-table {
-        font-size: 0.85rem; 
+        font-size: 0.75rem; /* فونت جدول بسیار کوچک می‌شود */
+        /* table-layout: auto; ممکن است برای جا شدن بهتر باشد اما کنترل عرض سخت‌تر می‌شود */
     }
     .time-table-section .time-table th,
     .time-table-section .time-table td {
-        padding: 8px 5px; 
-        white-space: nowrap; 
+        padding: 6px 2px; /* پدینگ خیلی کم */
+        white-space: normal; /* اجازه شکستن متن در سلول‌ها در صورت لزوم */
+    }
+    .time-table-section .time-table th > div.rotated-header {
+        transform: rotate(-70deg) translateX(-5px) translateY(-5px); /* تنظیم دقیق‌تر چرخش و موقعیت */
+        font-size: 0.9em; /* نسبت به فونت والد (th) */
+        bottom: 2px;
+        left: 50%; /* برای وسط چین کردن بهتر */
+         /* برای اینکه متن از چپ و راست درست وسط باشد، نیاز به محاسبه با translate است */
+        transform: translateX(-50%) rotate(-70deg) ; 
+        position: relative; /* تغییر به relative برای محاسبه بهتر left */
+        left:0; 
+        display: block; /* برای محاسبه صحیح transform */
+    }
+    .time-table-section .time-table .day-header {
+        font-size: 0.7rem;
+        padding-right: 5px !important;
+        width: 20%; /* عرض کمتر برای ستون روز */
+    }
+    .time-table-section .time-table th.day-header-main {
+        font-size: 0.7rem;
+        width: 20%;
+    }
+    /* تخصیص عرض مساوی به ستون های ساعت */
+    .time-table-section .time-table td:not(.day-header),
+    .time-table-section .time-table th:not(.day-header-main) {
+        width: calc(80% / 4); /* اگر 4 ستون ساعت داریم و 20% برای روز */
+        /* height: 50px; /* ارتفاع ثابت برای سلول ها اگر لازم شد */
     }
      .time-table-section .time-table input[type="checkbox"] {
-        transform: scale(1.1); 
+        transform: scale(1); /* اندازه نرمال یا حتی کوچکتر */
     }
-
 
     #admin-content-area .time-table, #admin-content-area .admin-users-table, .admin-aggregated-report .time-table {
         font-size: 0.8rem;
@@ -505,31 +574,35 @@ footer p { margin: 0; }
         padding: 8px 5px;
         white-space: nowrap;
     }
-    .welcome-text-container { font-size: 1.2rem; }
+    .welcome-text-container { font-size: 1.1rem; } /* فونت پیام خوش آمد کوچکتر */
 }
 
 @media (max-width: 480px) { /* Small mobile phones */
-    html { font-size: 14px; }
-    body { padding-top: calc(var(--header-height) + 5px); }
-    .container { width: 95%; padding: 0 10px; }
-    .logo-area h1 { font-size: 1.1rem; }
-    #user-actions button { font-size: 0.8rem; padding: 6px 10px; }
-    #user-actions #finalize-btn { min-width: 120px;}
-
-
-    .admin-actions button {
-        font-size: 0.8rem;
-        padding: 8px 10px;
-    }
-
-    #sticky-header { padding: 8px 0; height: calc(var(--header-height) - 10px);}
-    .welcome-text-container { font-size: 1.1rem; }
+    /* html { font-size: 13px; } ممکن است بیش از حد کوچک شود */
+    .logo-area h1 { font-size: 1rem; }
+    #user-actions button { font-size: 0.75rem; padding: 5px 8px; }
 
     .time-table-section .time-table {
-        font-size: 0.8rem; 
+        font-size: 0.7rem; 
     }
-     .time-table-section .time-table th,
-    .time-table-section .time-table td {
-        padding: 6px 4px; 
+    .time-table-section .time-table th > div.rotated-header {
+        /* تنظیمات دقیق‌تر برای چرخش و موقعیت متن هدر در این اندازه */
+        transform: translateX(-50%) rotate(-65deg); /* زاویه کمتر، فضای بیشتری می‌گیرد */
+        font-size: 0.85em;
     }
+     .time-table-section .time-table .day-header {
+        font-size: 0.65rem;
+        width: 22%; 
+    }
+    .time-table-section .time-table th.day-header-main {
+        font-size: 0.65rem;
+        width: 22%;
+    }
+    .time-table-section .time-table td:not(.day-header),
+    .time-table-section .time-table th:not(.day-header-main) {
+        width: calc(78% / 4); 
+    }
+
+    #sticky-header { padding: 6px 0; height: calc(var(--header-height) - 15px);}
+    .welcome-text-container { font-size: 1rem; }
 }
