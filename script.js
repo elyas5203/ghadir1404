@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     // --- CONFIGURATION ---
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyeUokv2jdQRw7Q3owcu4mV3XPgBpYI5676KzA-hqDyMKw4Z_6UWNUv2aWsR6tuLvc/exec"; // URL شما
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxM5-sSakN8zVTMLJBGbmI68E0pAow8CQa97cLhywpoA5Sb6uatVp5jNZ1r9tGx_rQy/exec"; // URL شما
     const ADMIN_USERNAME_VALUE = "ghadir";
     const ADMIN_PASSWORD_PHONE_VALUE = "110";
     const ADMIN_API_TOKEN = "ADMIN_SECRET_TOKEN_110";
@@ -19,17 +19,18 @@ document.addEventListener('DOMContentLoaded', () => {
         jamavari: {
             name: "جمع آوری",
             days: ["27", "28", "29", "30"],
-            slots: ["06:00 تا 09:00 صبح", "09:00 تا 15:00 شهر ", "15:00 تا 21:00 شب", "21:00 تا 03:00 بامداد"]
+            slots: ["06:00 تا 09:00 صبح", "09:00 تا 15:00 ظهر", "15:00 تا 21:00 شب", "21:00 تا 03:00 بامداد"] // تصحیح "شهر" به "ظهر" برای هماهنگی با سرور
         }
     };
 
     // --- STATE ---
     let currentSelections = [];
     let isAdminLoggedIn = false;
+    let allRegistrationsData = []; // برای نگهداری داده های تمام ثبت نام ها در پنل ادمین
 
     // --- DOM ELEMENTS ---
     const welcomeMessageSection = document.getElementById('welcome-message');
-    const timeTableSections = document.querySelectorAll('.time-table-section'); // انتخاب تمام بخش های جدول زمانی
+    const timeTableSections = document.querySelectorAll('.time-table-section');
     const finalizeBtn = document.getElementById('finalize-btn');
     const adminPanelBtn = document.getElementById('admin-panel-btn');
     const loadingSpinner = document.getElementById('loading-spinner');
@@ -135,35 +136,31 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- UI FUNCTIONS ---
     function showContent(sectionIdToShow) {
         if(welcomeMessageSection) welcomeMessageSection.style.display = 'none';
-        timeTableSections.forEach(sec => sec.style.display = 'none'); // مخفی کردن تمام جداول زمانی در ابتدا
+        timeTableSections.forEach(sec => sec.style.display = 'none'); 
         if(adminPanelSection) adminPanelSection.style.display = 'none';
         if(adminActionsDiv) adminActionsDiv.style.display = 'none';
 
 
         if (sectionIdToShow === 'admin-panel-section') {
             if(adminPanelSection) {
-                adminPanelSection.style.display = 'block';
-                adminPanelSection.classList.add('active-section'); // برای انیمیشن اگر دارد
+                adminPanelSection.style.display = 'flex'; // Changed to flex for column layout
+                adminPanelSection.classList.add('active-section'); 
             }
             if(adminActionsDiv) adminActionsDiv.style.display = 'flex';
             if(finalizeBtn) finalizeBtn.style.display = 'none';
-            // پیام خوش آمدگویی و جداول زمانبندی باید مخفی باشند
             if(welcomeMessageSection) welcomeMessageSection.style.display = 'none';
             timeTableSections.forEach(sec => sec.style.display = 'none');
 
-        } else if (sectionIdToShow === 'user-view') { // یک شناسه جدید برای نمایش کاربر
+        } else if (sectionIdToShow === 'user-view') { 
             if(welcomeMessageSection) {
                  welcomeMessageSection.style.display = 'block';
                  welcomeMessageSection.classList.add('active-section');
             }
-            timeTableSections.forEach(sec => sec.style.display = 'block'); // نمایش جداول زمانی برای کاربر
+            timeTableSections.forEach(sec => sec.style.display = 'block'); 
             if(finalizeBtn) finalizeBtn.style.display = 'inline-block';
-            // پنل ادمین باید مخفی باشد
             if(adminPanelSection) adminPanelSection.style.display = 'none';
             if(adminActionsDiv) adminActionsDiv.style.display = 'none';
         }
-        // قبلا اینجا welcome-message بود، که باعث میشد همیشه جداول هم نمایش داده شوند
-        // حالا با 'user-view' کنترل دقیق تری داریم
     }
 
     function generateTimetable(sectionKey) {
@@ -223,12 +220,12 @@ document.addEventListener('DOMContentLoaded', () => {
         if (isAdminLoggedIn) {
             if(adminPanelBtn) adminPanelBtn.textContent = 'پنل مدیریت';
             if(logoutAdminBtn) logoutAdminBtn.style.display = 'inline-block';
-            showContent('admin-panel-section'); // نمایش پنل ادمین
-            handleAdminViewAllRegistrations(); // بارگذاری پیش فرض لیست ثبت نام ها
+            showContent('admin-panel-section'); 
+            handleAdminViewAllRegistrations(); 
         } else {
             if(adminPanelBtn) adminPanelBtn.textContent = 'ورود ادمین';
             if(logoutAdminBtn) logoutAdminBtn.style.display = 'none';
-            showContent('user-view'); // نمایش محتوای کاربر (خوش آمد + جداول)
+            showContent('user-view'); 
         }
         updateFinalizeButtonState();
     }
@@ -265,7 +262,7 @@ document.addEventListener('DOMContentLoaded', () => {
         adminPanelBtn.addEventListener('click', () => {
             if (isAdminLoggedIn) {
                 showContent('admin-panel-section'); 
-                // handleAdminViewAllRegistrations(); // این دیگر لازم نیست چون در updateAdminUI فراخوانی می‌شود
+                handleAdminViewAllRegistrations(); // نمایش لیست کاربران هنگام بازگشت به پنل
             } else {
                 alert("برای ورود به عنوان ادمین، لطفاً روی دکمه 'ثبت نهایی انتخاب‌ها' کلیک کرده، در فرم باز شده، نام کاربری 'ghadir' و شماره تلفن '110' را وارد نمایید.");
             }
@@ -275,7 +272,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if(logoutAdminBtn) logoutAdminBtn.addEventListener('click', () => {
         if (confirm("آیا مطمئن هستید که می‌خواهید از پنل مدیریت خارج شوید؟")) {
             isAdminLoggedIn = false;
-            updateAdminUI(); // این تابع view را به user-view تغییر می‌دهد
+            updateAdminUI(); 
         }
     });
 
@@ -326,7 +323,7 @@ document.addEventListener('DOMContentLoaded', () => {
             isAdminLoggedIn = true;
             if(userDataModal) userDataModal.style.display = 'none';
             if(userDataForm) userDataForm.reset();
-            updateAdminUI(); // این تابع showContent('admin-panel-section') را صدا میزند
+            updateAdminUI(); 
             alert("شما با موفقیت به عنوان ادمین وارد شدید.");
             return; 
         }
@@ -359,60 +356,166 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     // --- ADMIN PANEL FUNCTIONS & HANDLERS ---
+
     async function handleAdminViewAllRegistrations() {
         if (!isAdminLoggedIn) return;
-        // showContent('admin-panel-section'); // این خط دیگر لازم نیست چون updateAdminUI این کار را می‌کند
-
-        if(adminContentArea) adminContentArea.innerHTML = '<h3>لیست تمام ثبت‌نام‌کنندگان و انتخاب‌هایشان</h3><p>در حال بارگذاری...</p>';
+        if(adminContentArea) adminContentArea.innerHTML = '<h3>لیست تمام ثبت‌نام‌کنندگان</h3><p>در حال بارگذاری...</p>';
+        
         const result = await callApi('getAllRegistrations', {}, ADMIN_API_TOKEN); 
-        if(adminContentArea) adminContentArea.innerHTML = '<h3>لیست تمام ثبت‌نام‌کنندگان و انتخاب‌هایشان</h3>';
         
         if (result && result.success && result.registrations) {
-            if (result.registrations.length === 0) {
-                if(adminContentArea) adminContentArea.innerHTML += '<p>هیچ ثبت‌نامی یافت نشد.</p>';
+            allRegistrationsData = result.registrations; // ذخیره داده‌ها برای استفاده‌های بعدی
+
+            if (allRegistrationsData.length === 0) {
+                if(adminContentArea) adminContentArea.innerHTML = '<h3>لیست تمام ثبت‌نام‌کنندگان</h3><p>هیچ ثبت‌نامی یافت نشد.</p>';
                 return;
             }
-            const table = document.createElement('table');
-            table.classList.add('admin-users-table');
-            const header = table.createTHead().insertRow();
-            ['نام کامل', 'شماره تماس', 'بخش', 'روز', 'بازه زمانی', 'زمان ثبت'].forEach(text => header.insertCell().textContent = text);
-            const tbody = table.createTBody();
-            result.registrations.forEach(reg => {
-                if (reg.selections && reg.selections.length > 0) {
-                    reg.selections.forEach(sel => {
-                        const row = tbody.insertRow();
-                        row.insertCell().textContent = reg.fullName;
-                        row.insertCell().textContent = reg.phoneNumber;
-                        row.insertCell().textContent = timeSlots[sel.section] ? timeSlots[sel.section].name : sel.section;
-                        row.insertCell().textContent = sel.day;
-                        row.insertCell().textContent = sel.timeSlot;
-                        row.insertCell().textContent = reg.registeredAt ? new Date(reg.registeredAt).toLocaleString('fa-IR', { year:'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute:'2-digit' }) : '-';
-                    });
-                } else {
-                    const row = tbody.insertRow();
-                    row.insertCell().textContent = reg.fullName;
-                    row.insertCell().textContent = reg.phoneNumber;
-                    const noSelectionCell = row.insertCell();
-                    noSelectionCell.setAttribute('colspan', '3'); // ادغام ۳ ستون میانی
-                    noSelectionCell.style.textAlign = 'center';
-                    noSelectionCell.style.fontStyle = 'italic';
-                    noSelectionCell.textContent = "بدون انتخاب زمان";
-                    // ستون زمان ثبت هنوز باید باشد
-                    row.insertCell().textContent = reg.registeredAt ? new Date(reg.registeredAt).toLocaleString('fa-IR', { year:'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute:'2-digit' }) : '-';
-                }
-            });
-            if(adminContentArea) adminContentArea.appendChild(table);
+            buildRegistrantsList(allRegistrationsData); // نمایش لیست اولیه کاربران
         } else {
-            if(adminContentArea) adminContentArea.innerHTML += `<p>خطا در بارگذاری ثبت‌نام‌ها: ${result ? result.message : 'خطای ناشناخته.'}</p>`;
+            if(adminContentArea) {
+                 adminContentArea.innerHTML = '<h3>لیست تمام ثبت‌نام‌کنندگان</h3>';
+                 adminContentArea.innerHTML += `<p>خطا در بارگذاری ثبت‌نام‌ها: ${result ? result.message : 'خطای ناشناخته.'}</p>`;
+            }
         }
     }
+
+    function buildRegistrantsList(registrations) {
+        if(!adminContentArea) return;
+        adminContentArea.innerHTML = '<h3>لیست ثبت‌نام‌کنندگان (برای مشاهده جزئیات روی نام کلیک کنید)</h3>';
+
+        const table = document.createElement('table');
+        table.classList.add('admin-users-table');
+        const header = table.createTHead().insertRow();
+        ['نام کامل', 'شماره تماس', 'زمان ثبت اولیه', 'تعداد انتخاب‌ها'].forEach(text => header.insertCell().textContent = text);
+        
+        const tbody = table.createTBody();
+        registrations.forEach(reg => {
+            const row = tbody.insertRow();
+            row.style.cursor = 'pointer';
+            row.setAttribute('data-submission-id', reg.submissionId);
+
+            row.insertCell().textContent = reg.fullName;
+            row.insertCell().textContent = reg.phoneNumber;
+            row.insertCell().textContent = reg.registeredAt ? new Date(reg.registeredAt).toLocaleString('fa-IR', { year:'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute:'2-digit' }) : '-';
+            row.insertCell().textContent = reg.selections ? reg.selections.length : 0;
+
+            row.addEventListener('click', () => {
+                displayIndividualUserSelections(reg.submissionId);
+            });
+        });
+        adminContentArea.appendChild(table);
+    }
+
+    function displayIndividualUserSelections(submissionId) {
+        if (!adminContentArea) return;
+
+        const userData = allRegistrationsData.find(r => r.submissionId === submissionId);
+        if (!userData) {
+            adminContentArea.innerHTML = '<p>اطلاعات کاربر یافت نشد.</p>';
+            // دکمه بازگشت در صورتی که کاربر یافت نشد
+            const backBtnNotFound = document.createElement('button');
+            backBtnNotFound.textContent = 'بازگشت به لیست ثبت‌نام کنندگان';
+            backBtnNotFound.classList.add('admin-action-button');
+            backBtnNotFound.style.marginTop = '15px';
+            backBtnNotFound.addEventListener('click', () => buildRegistrantsList(allRegistrationsData));
+            adminContentArea.appendChild(backBtnNotFound);
+            return;
+        }
+
+        adminContentArea.innerHTML = `
+            <h3>جزئیات انتخاب‌های ${userData.fullName} (تلفن: ${userData.phoneNumber})</h3>
+            <button id="back-to-registrants-list" class="admin-action-button" style="margin-bottom:15px;">بازگشت به لیست ثبت‌نام کنندگان</button>
+        `;
+
+        const backButton = adminContentArea.querySelector('#back-to-registrants-list');
+        if (backButton) {
+            backButton.addEventListener('click', () => buildRegistrantsList(allRegistrationsData));
+        }
+
+        if (!userData.selections || userData.selections.length === 0) {
+            adminContentArea.innerHTML += '<p>این کاربر هیچ بازه زمانی را انتخاب نکرده است.</p>';
+            return;
+        }
+
+        // ایجاد جداول زمانی برای نمایش انتخاب‌های کاربر
+        Object.keys(timeSlots).forEach(sectionKey => {
+            const sectionConfig = timeSlots[sectionKey];
+            // فقط بخش‌هایی را نمایش بده که کاربر در آن‌ها انتخاب داشته است
+            const userSelectionsForThisSection = userData.selections.filter(sel => sel.section === sectionKey);
+            
+            if (userSelectionsForThisSection.length > 0) {
+                const sectionDiv = document.createElement('div');
+                sectionDiv.classList.add('report-section-block'); // استفاده از استایل مشابه گزارش تجمیعی
+                sectionDiv.style.marginTop = '20px';
+                sectionDiv.innerHTML = `<h4>بخش ${sectionConfig.name} (انتخاب‌های ${userData.fullName})</h4>`;
+                
+                const tableContainerId = `${sectionKey}-user-detail-table-container-${userData.submissionId}`;
+                const tableContainerDiv = document.createElement('div');
+                tableContainerDiv.id = tableContainerId;
+                tableContainerDiv.classList.add('table-container'); // برای overflow احتمالی
+                
+                sectionDiv.appendChild(tableContainerDiv);
+                adminContentArea.appendChild(sectionDiv);
+                
+                generateTimetableForUserDetail(sectionKey, tableContainerId, userSelectionsForThisSection);
+            }
+        });
+    }
+
+    function generateTimetableForUserDetail(sectionKey, containerId, userSelections) {
+        const sectionConfig = timeSlots[sectionKey];
+        if (!sectionConfig) return;
+        const container = document.getElementById(containerId);
+        if (!container) { console.error("User detail timetable container not found:", containerId); return; }
+        
+        container.innerHTML = ''; 
+        const table = document.createElement('table'); 
+        table.classList.add('time-table'); // استفاده از استایل جدول های ادمین
+        
+        const header = table.createTHead().insertRow(); 
+        const thDay = header.appendChild(document.createElement('th'));
+        thDay.textContent = "روز / ساعت";
+        thDay.classList.add('day-header-main');
+
+        sectionConfig.slots.forEach(slot => {
+            const thSlot = header.appendChild(document.createElement('th'));
+            thSlot.textContent = slot;
+        });
+        
+        const tbody = table.createTBody();
+        sectionConfig.days.forEach(day => {
+            const row = tbody.insertRow(); 
+            const dayCell = row.insertCell();
+            dayCell.textContent = `روز ${day}`; 
+            dayCell.classList.add('day-header');
+            
+            sectionConfig.slots.forEach(slot => {
+                const cell = row.insertCell(); 
+                cell.setAttribute('data-label', slot); 
+                
+                const isSelected = userSelections.some(sel => 
+                    sel.day.toString() === day.toString() && // sel.section قبلا فیلتر شده
+                    sel.timeSlot === slot
+                );
+
+                if (isSelected) {
+                    // cell.textContent = "✔️"; // یا "انتخاب شده"
+                    cell.innerHTML = '<span style="font-size: 1.2em; color: var(--success-color);">✔</span>';
+                    cell.classList.add('selected-previously-admin-view'); 
+                } else {
+                    cell.textContent = "-"; 
+                }
+            });
+        });
+        container.appendChild(table);
+    }
+
+
     if(adminViewAllRegistrationsBtn) adminViewAllRegistrationsBtn.addEventListener('click', handleAdminViewAllRegistrations);
     
 
     async function handleAdminViewAggregatedReport() {
         if (!isAdminLoggedIn) return;
-        // showContent('admin-panel-section'); // این خط دیگر لازم نیست
-
         if(adminContentArea) adminContentArea.innerHTML = '<h3>گزارش تجمیعی حضور (تعداد نفرات در هر بازه)</h3><p>در حال بارگذاری...</p>';
         const result = await callApi('getAggregatedReport', {}, ADMIN_API_TOKEN);
         if(adminContentArea) adminContentArea.innerHTML = '<h3>گزارش تجمیعی حضور (تعداد نفرات در هر بازه)</h3>';
@@ -474,62 +577,25 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
         
-        regenerateAllTimetablesForUserView(); // جداول را برای نمایش کاربر ایجاد کن
-        updateAdminUI(); // وضعیت اولیه دکمه ادمین و نمایش محتوا را تنظیم می کند
-        // showContent('user-view'); // این خط در updateAdminUI مدیریت می شود
-        showInitialWelcomeOverlay();
-    }
-
-    function showInitialWelcomeOverlay() {
-        const overlay = document.getElementById('initial-welcome-overlay');
-        if (overlay) {
-            document.body.style.overflow = 'hidden';
-            setTimeout(() => {
-                overlay.classList.add('hidden');
-                document.body.style.overflow = 'auto';
-            }, 4000);
-        }
-    }// ... (بقیه کد script.js شما بدون تغییر باقی می ماند) ...
-
-    // --- INITIALIZATION ---
-    function init() {
-        const placeholderUrlPart = "YOUR_DEPLOYMENT_ID";
-        if (!SCRIPT_URL || SCRIPT_URL.includes(placeholderUrlPart) || SCRIPT_URL.toLowerCase().includes("YOUR_APPS_SCRIPT_URL_HERE") || SCRIPT_URL.length < 70 || (SCRIPT_URL.endsWith("/exec") && SCRIPT_URL.split('/').slice(-2, -1)[0].length < 30)) {
-            const configErrorMessage = "خطای پیکربندی: URL مربوط به Apps Script به درستی تنظیم نشده است.";
-            alert(configErrorMessage);
-            showLoading(false);
-            const mainContent = document.querySelector('main.container');
-            const errorHtml = `<h1 style='color:red; text-align:center; margin-top: 50px;'>${configErrorMessage}</h1>`;
-            if (mainContent) { mainContent.innerHTML = errorHtml; } else { document.body.innerHTML = errorHtml; }
-            document.querySelectorAll('button:not(.close-btn)').forEach(btn => btn.disabled = true);
-            return;
-        }
-        
         regenerateAllTimetablesForUserView();
         updateAdminUI();
-        // showContent('user-view'); // این توسط updateAdminUI() در ابتدا مدیریت می شود.
-        showInitialWelcomeOverlay(); // فراخوانی تابع نمایش overlay
+        showInitialWelcomeOverlay(); 
     }
 
     function showInitialWelcomeOverlay() {
         const overlay = document.getElementById('initial-welcome-overlay');
         if (overlay) {
-            // جلوگیری از اسکرول تا زمانی که overlay نمایش داده می‌شود
             document.body.style.overflow = 'hidden';
-            
-            // اطمینان از اینکه overlay در ابتدا قابل مشاهده است (اگر قبلا display:none داشته)
             overlay.style.display = 'flex'; 
-            overlay.style.opacity = '1'; // اطمینان از opacity کامل
+            overlay.style.opacity = '1'; 
             
             setTimeout(() => {
-                overlay.style.opacity = '0'; // شروع انیمیشن محو شدن
-                // پس از اتمام انیمیشن محو شدن (که 0.7 ثانیه طول می کشد طبق CSS)
-                // overlay را به طور کامل از جریان صفحه حذف کرده و اسکرول را باز می گردانیم
+                overlay.style.opacity = '0'; 
                 setTimeout(() => {
-                    overlay.style.display = 'none'; // حذف کامل از نمایش
-                    document.body.style.overflow = 'auto'; // بازگرداندن اسکرول
-                }, 700); // این زمان باید با transition-duration در CSS هماهنگ باشد
-            }, 4000); // نمایش به مدت ۴ ثانیه قبل از شروع محو شدن
+                    overlay.style.display = 'none'; 
+                    document.body.style.overflow = 'auto'; 
+                }, 700); 
+            }, 4000); 
         }
     }
 
