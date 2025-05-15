@@ -256,7 +256,7 @@ main.container {
 
 /* --- Timetable Styling (for user view) --- */
 .time-table-section .table-container {
-    overflow-x: auto; /* اسکرول افقی در صورت نیاز (اگر چرخش و کوچک سازی کافی نبود) */
+    overflow-x: hidden; /* <<< مهم: جلوگیری از اسکرول افقی کانتینر */
     -webkit-overflow-scrolling: touch;
     padding-bottom: 10px;
     margin-bottom: 10px;
@@ -266,21 +266,21 @@ main.container {
 }
 .time-table-section .time-table {
     width: 100%; 
-    border-collapse: separate; /* separate بهتر از collapse برای border-radius کار می‌کند */
+    border-collapse: separate; 
     border-spacing: 0;
     margin-top: 10px; 
-    font-size: 0.9rem; 
-    /* min-width: 600px; <<<< این حذف شد تا جدول سعی کند در عرض صفحه جا شود */
-    table-layout: fixed; /* مهم برای کنترل عرض ستون ها */
+    font-size: 0.85rem; /* <<< فونت کمی کوچکتر برای شروع */
+    table-layout: fixed; 
 }
 .time-table-section .time-table th,
 .time-table-section .time-table td {
     border: 1px solid rgba(255, 255, 255, 0.15); 
-    padding: 8px 2px; /* پدینگ افقی خیلی کم */
+    padding: 6px 2px; /* <<< پدینگ خیلی کم */
     text-align: center; 
     color: var(--text-light-color);
     vertical-align: middle; 
-    word-break: break-word; /* اگر متن ساعت خیلی طولانی شد، بشکند (برای اطمینان) */
+    overflow: hidden; /* <<< جلوگیری از بیرون زدن محتوای سلول */
+    text-overflow: ellipsis; /* <<< نمایش سه نقطه اگر محتوا جا نشد (برای متن روز) */
 }
 .time-table-section .time-table tr:first-child th:first-child { border-top-left-radius: var(--border-radius); }
 .time-table-section .time-table tr:first-child th:last-child { border-top-right-radius: var(--border-radius); }
@@ -289,28 +289,32 @@ main.container {
 
 .time-table-section .time-table th { /* هدر ستون های ساعت */
     background-color: rgba(0, 105, 92, 0.4); 
-    font-weight: 500; /* کمی سبک تر */
+    font-weight: 500; 
     color: var(--text-on-primary);
-    white-space: normal; /* اجازه شکستن متن اگر لازم باشد */
-    font-size: 0.7rem; /* فونت کوچکتر برای هدر ساعت ها */
-    height: 70px; /* ارتفاع بیشتر برای جای دادن متن چرخانده شده */
+    font-size: 0.65rem; /* <<< فونت بسیار کوچک برای هدر ساعت ها */
+    height: 60px; /* ارتفاع کمتر برای هدر */
     position: relative;
+    white-space: normal; /* اجازه شکستن خط اگر لازم شد (fallback) */
+    line-height: 1.1; /* برای متن چند خطی */
+    vertical-align: bottom; /* تراز متن به پایین برای جای بیشتر برای چرخش */
+    padding-bottom: 20px; /* فضا برای متن چرخانده */
 }
 
-/* استایل برای چرخاندن متن هدر ستون ها */
 .time-table-section .time-table th > div.rotated-header {
-    transform: rotate(-75deg);
-    transform-origin: center center; /* چرخیدن حول مرکز */
+    transform: rotate(-90deg); /* <<< چرخش 90 درجه */
+    transform-origin: bottom left; /* <<< مبدا چرخش */
     white-space: nowrap;
     position: absolute;
-    bottom: 5px; /* تنظیم موقعیت متن چرخانده شده */
-    left: 50%;
-    width: auto; /* عرض خودکار بر اساس محتوا */
-    display: inline-block;
+    bottom: 5px; 
+    left: 50%; /* برای شروع از وسط */
     padding: 0;
     line-height: 1;
-    /* برای محاسبه صحیح transform-origin و جلوگیری از بیرون زدن متن، ممکن است نیاز به تنظیمات دقیق تر باشد */
-    /* یک راه دیگر استفاده از writing-mode است اما پشتیبانی مرورگرها متفاوت است */
+    display: inline-block;
+    /* برای تنظیم دقیق تر، ممکن است نیاز به translate باشد */
+    /* transform: translateX(-50%) translateY(100%) rotate(-90deg); */
+    /* این بخش نیاز به تست و تنظیم دقیق دارد */
+     width: 55px; /* عرض div چرخانده شده (ارتفاع قبلی) */
+     text-align: right; /* برای اینکه متن از پایین به بالا خوانده شود */
 }
 
 
@@ -320,30 +324,33 @@ main.container {
     font-weight: bold; 
     white-space: nowrap;
     text-align: right !important; 
-    padding-right: 8px !important; /* پدینگ کمتر */
-    font-size: 0.8rem; /* فونت کوچکتر برای روزها */
-    width: 25%; /* تخصیص عرض بیشتر به ستون روز */
+    padding-right: 5px !important; 
+    font-size: 0.75rem; 
+    width: 28%; /* <<< عرض بیشتر برای ستون روز */
 }
 .time-table-section .time-table th.day-header-main { 
      background-color: rgba(0, 80, 70, 0.5); 
-     width: 25%; /* هماهنگ با ستون روز */
-     font-size: 0.8rem;
+     width: 28%; 
+     font-size: 0.75rem;
+     padding-bottom: 5px; /* حذف پدینگ اضافه برای این هدر */
 }
 
 /* تخصیص عرض مساوی به ستون های ساعت */
 .time-table-section .time-table td:not(.day-header),
 .time-table-section .time-table th:not(.day-header-main) {
-    width: calc(75% / 4); /* اگر 4 ستون ساعت داریم و 25% برای روز */
+    width: calc(72% / 4); /* اگر 4 ستون ساعت داریم و 28% برای روز */
 }
-/* اگر 3 ستون ساعت بود: width: calc(75% / 3); */
+/* اگر 3 ستون ساعت بود: width: calc(72% / 3); */
 
 
 .time-table-section .time-table input[type="checkbox"] {
-    transform: scale(1.1); /* کمی کوچکتر */
+    transform: scale(1); /* اندازه نرمال */
     cursor: pointer; 
     accent-color: var(--accent-color);
-    margin: 0 auto; /* وسط چین کردن چک باکس */
-    display: block; /* برای کارکردن margin auto */
+    margin: 0 auto; 
+    display: block; 
+    width: 16px; /* اندازه ثابت برای چک باکس */
+    height: 16px;
 }
 .time-table-section .time-table input[type="checkbox"]:disabled { cursor: not-allowed; opacity: 0.6; }
 .time-table-section .time-table td.selected-previously,
@@ -414,7 +421,7 @@ main.container {
     width: 100%; border-collapse: separate; border-spacing: 0; margin-top: 15px; font-size: 0.9rem;
     background-color: var(--admin-table-bg); border-radius: var(--border-radius);
     box-shadow: var(--box-shadow); color: var(--admin-table-text);
-    min-width: 600px;
+    min-width: 600px; /* برای پنل ادمین اسکرول افقی همچنان می‌تواند وجود داشته باشد */
 }
 #admin-content-area .time-table th, #admin-content-area .time-table td,
 #admin-content-area .admin-users-table th, #admin-content-area .admin-users-table td,
@@ -506,9 +513,10 @@ footer p { margin: 0; }
 
 
 /* --- Responsive Adjustments --- */
+/* مدیا کوئری ها از اینجا شروع می شوند */
 @media (max-width: 768px) { /* Mobile and smaller tablets */
-    html { font-size: 14px; } /* فونت کلی کمی کوچکتر */
-    body { padding-top: calc(var(--header-height) + 5px); } /* کمی پدینگ بیشتر اگر هدر شلوغ شود */
+    html { font-size: 14px; } 
+    body { padding-top: calc(var(--header-height) + 5px); }
     .logo-area h1 { font-size: 1.2rem; }
     #user-actions button { font-size: 0.85rem; padding: 7px 10px;}
     #user-actions #finalize-btn { min-width: auto; padding: 7px 12px; }
@@ -526,44 +534,65 @@ footer p { margin: 0; }
         font-size: 0.9rem;
     }
 
+    /* استایل جدول زمانبندی کاربر در موبایل */
     .time-table-section .time-table {
-        font-size: 0.75rem; /* فونت جدول بسیار کوچک می‌شود */
-        /* table-layout: auto; ممکن است برای جا شدن بهتر باشد اما کنترل عرض سخت‌تر می‌شود */
+        font-size: 0.6rem; /* <<< فونت خیلی کوچک برای جا شدن */
+        /* table-layout: auto;  اگر fixed کار نکرد، این را تست کنید */
     }
     .time-table-section .time-table th,
     .time-table-section .time-table td {
-        padding: 6px 2px; /* پدینگ خیلی کم */
-        white-space: normal; /* اجازه شکستن متن در سلول‌ها در صورت لزوم */
+        padding: 4px 1px; /* <<< پدینگ بسیار کم */
+        white-space: nowrap; /* برای اینکه متن ساعت در یک خط بماند اگر چرخش اعمال نشد */
+    }
+    .time-table-section .time-table th { /* هدر ستون ساعت ها */
+        font-size: 0.55rem; /* <<< فونت خیلی خیلی کوچک برای هدر ساعت */
+        height: 70px; /* ارتفاع برای متن چرخانده */
+        padding-bottom: 25px; /* فضای بیشتر در پایین برای متن چرخانده */
+        vertical-align: middle; /* برای وسط چین کردن div چرخانده شده */
     }
     .time-table-section .time-table th > div.rotated-header {
-        transform: rotate(-70deg) translateX(-5px) translateY(-5px); /* تنظیم دقیق‌تر چرخش و موقعیت */
-        font-size: 0.9em; /* نسبت به فونت والد (th) */
-        bottom: 2px;
-        left: 50%; /* برای وسط چین کردن بهتر */
-         /* برای اینکه متن از چپ و راست درست وسط باشد، نیاز به محاسبه با translate است */
-        transform: translateX(-50%) rotate(-70deg) ; 
-        position: relative; /* تغییر به relative برای محاسبه بهتر left */
-        left:0; 
-        display: block; /* برای محاسبه صحیح transform */
+        transform: rotate(-90deg) ; 
+        transform-origin: center center; /* چرخیدن حول مرکز خودش */
+        white-space: nowrap;
+        position: absolute; /* برای کنترل دقیق موقعیت */
+        bottom: 2px; /* تنظیم از پایین */
+        left: 50%;
+        /* برای اینکه متن دقیقا وسط ستون باشد، باید نصف عرض خودش به چپ برود */
+        /* این کار با translateY(-50%) روی یک والد با display:flex یا grid راحت تر است */
+        /* یا با محاسبه دقیق margin-left منفی بر اساس عرض متن */
+        /* یک راه ساده تر: */
+        width: 65px; /* عرض div (که تبدیل به ارتفاع متن چرخانده می شود) */
+        margin-left: -32.5px; /* نصف عرض div برای وسط چین کردن */
+        text-align: right; /* متن از پایین به بالا خوانده شود */
+        line-height: 1;
     }
-    .time-table-section .time-table .day-header {
-        font-size: 0.7rem;
-        padding-right: 5px !important;
-        width: 20%; /* عرض کمتر برای ستون روز */
+
+     .time-table-section .time-table .day-header {
+        font-size: 0.7rem; /* فونت روز کمی بزرگتر از ساعت */
+        padding-right: 4px !important;
+        width: 30%; /* <<< عرض بیشتر برای ستون روز */
     }
     .time-table-section .time-table th.day-header-main {
         font-size: 0.7rem;
-        width: 20%;
+        width: 30%;
+        padding-bottom: 4px; /* بازگرداندن پدینگ عادی */
     }
     /* تخصیص عرض مساوی به ستون های ساعت */
     .time-table-section .time-table td:not(.day-header),
     .time-table-section .time-table th:not(.day-header-main) {
-        width: calc(80% / 4); /* اگر 4 ستون ساعت داریم و 20% برای روز */
-        /* height: 50px; /* ارتفاع ثابت برای سلول ها اگر لازم شد */
+        width: calc(70% / 4); /* اگر 4 ستون ساعت داریم و 30% برای روز */
     }
+    /* برای جدول اجرا که 3 ستون ساعت دارد */
+    #ejra-section .time-table td:not(.day-header),
+    #ejra-section .time-table th:not(.day-header-main) {
+        width: calc(70% / 3);
+    }
+
      .time-table-section .time-table input[type="checkbox"] {
-        transform: scale(1); /* اندازه نرمال یا حتی کوچکتر */
+        transform: scale(0.9); /* کوچکترین حالت چک باکس */
+        margin-top: 2px; /* کمی فاصله از بالا */
     }
+
 
     #admin-content-area .time-table, #admin-content-area .admin-users-table, .admin-aggregated-report .time-table {
         font-size: 0.8rem;
@@ -574,35 +603,8 @@ footer p { margin: 0; }
         padding: 8px 5px;
         white-space: nowrap;
     }
-    .welcome-text-container { font-size: 1.1rem; } /* فونت پیام خوش آمد کوچکتر */
+    .welcome-text-container { font-size: 1.1rem; }
 }
 
-@media (max-width: 480px) { /* Small mobile phones */
-    /* html { font-size: 13px; } ممکن است بیش از حد کوچک شود */
-    .logo-area h1 { font-size: 1rem; }
-    #user-actions button { font-size: 0.75rem; padding: 5px 8px; }
-
-    .time-table-section .time-table {
-        font-size: 0.7rem; 
-    }
-    .time-table-section .time-table th > div.rotated-header {
-        /* تنظیمات دقیق‌تر برای چرخش و موقعیت متن هدر در این اندازه */
-        transform: translateX(-50%) rotate(-65deg); /* زاویه کمتر، فضای بیشتری می‌گیرد */
-        font-size: 0.85em;
-    }
-     .time-table-section .time-table .day-header {
-        font-size: 0.65rem;
-        width: 22%; 
-    }
-    .time-table-section .time-table th.day-header-main {
-        font-size: 0.65rem;
-        width: 22%;
-    }
-    .time-table-section .time-table td:not(.day-header),
-    .time-table-section .time-table th:not(.day-header-main) {
-        width: calc(78% / 4); 
-    }
-
-    #sticky-header { padding: 6px 0; height: calc(var(--header-height) - 15px);}
-    .welcome-text-container { font-size: 1rem; }
-}
+/* ممکن است برای صفحه های خیلی کوچک (max-width: 480px) نیاز به تنظیمات دقیق تر باشد */
+/* اما با table-layout:fixed و overflow:hidden برای سلول ها، باید تا حد زیادی کنترل شود */
