@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     // --- CONFIGURATION ---
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxM5-sSakN8zVTMLJBGbmI68E0pAow8CQa97cLhywpoA5Sb6uatVp5jNZ1r9tGx_rQy/exec"; // URL شما
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwlJlFn63FI93dP0uGydzA5wJ8QejfR9O7-gmSyvao1qVEVQg2DzI03WqCgBmnJk4k4/exec"; // URL شما
     const ADMIN_USERNAME_VALUE = "ghadir";
     const ADMIN_PASSWORD_PHONE_VALUE = "110";
     const ADMIN_API_TOKEN = "ADMIN_SECRET_TOKEN_110";
@@ -19,14 +19,14 @@ document.addEventListener('DOMContentLoaded', () => {
         jamavari: {
             name: "جمع آوری",
             days: ["27", "28", "29", "30"],
-            slots: ["06:00 تا 09:00 صبح", "09:00 تا 15:00 ظهر", "15:00 تا 21:00 شب", "21:00 تا 03:00 بامداد"] // تصحیح "شهر" به "ظهر" برای هماهنگی با سرور
+            slots: ["06:00 تا 09:00 صبح", "09:00 تا 15:00 ظهر", "15:00 تا 21:00 شب", "21:00 تا 03:00 بامداد"]
         }
     };
 
     // --- STATE ---
     let currentSelections = [];
     let isAdminLoggedIn = false;
-    let allRegistrationsData = []; // برای نگهداری داده های تمام ثبت نام ها در پنل ادمین
+    let allRegistrationsData = []; 
 
     // --- DOM ELEMENTS ---
     const welcomeMessageSection = document.getElementById('welcome-message');
@@ -46,6 +46,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const userDataForm = document.getElementById('user-data-form');
     const userFullnameInput = document.getElementById('user-fullname-input');
     const userPhoneInput = document.getElementById('user-phone-input');
+    const userReferrerInput = document.getElementById('user-referrer-input'); // <-- فیلد جدید
     const userDataFeedback = document.getElementById('user-data-feedback');
 
     // --- HELPER FUNCTIONS ---
@@ -143,7 +144,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (sectionIdToShow === 'admin-panel-section') {
             if(adminPanelSection) {
-                adminPanelSection.style.display = 'flex'; // Changed to flex for column layout
+                adminPanelSection.style.display = 'flex'; 
                 adminPanelSection.classList.add('active-section'); 
             }
             if(adminActionsDiv) adminActionsDiv.style.display = 'flex';
@@ -262,7 +263,7 @@ document.addEventListener('DOMContentLoaded', () => {
         adminPanelBtn.addEventListener('click', () => {
             if (isAdminLoggedIn) {
                 showContent('admin-panel-section'); 
-                handleAdminViewAllRegistrations(); // نمایش لیست کاربران هنگام بازگشت به پنل
+                handleAdminViewAllRegistrations(); 
             } else {
                 alert("برای ورود به عنوان ادمین، لطفاً روی دکمه 'ثبت نهایی انتخاب‌ها' کلیک کرده، در فرم باز شده، نام کاربری 'ghadir' و شماره تلفن '110' را وارد نمایید.");
             }
@@ -294,15 +295,16 @@ document.addEventListener('DOMContentLoaded', () => {
         if (isAdminLoggedIn) return;
 
         if(userDataModal) userDataModal.style.display = 'block';
-        if(userDataForm) userDataForm.reset();
+        if(userDataForm) userDataForm.reset(); // این شامل فیلد معرف هم می‌شود
         if(userFullnameInput) {
-            userFullnameInput.value = '';
+            userFullnameInput.value = ''; // اطمینان از پاک شدن اگر reset کار نکرد
             userPhoneInput.setAttribute('pattern', '09[0-9]{9}');
             userPhoneInput.setAttribute('title', 'شماره موبایل معتبر مانند 09123456789');
             userPhoneInput.setAttribute('placeholder', 'مثال: 09123456789');
             userPhoneInput.type = 'tel';
         }
-        if(userPhoneInput) userPhoneInput.value = '';
+        if(userPhoneInput) userPhoneInput.value = ''; // اطمینان از پاک شدن
+        if(userReferrerInput) userReferrerInput.value = ''; // <-- پاک کردن فیلد جدید
         if(userDataFeedback) userDataFeedback.style.display = 'none';
     });
 
@@ -313,6 +315,7 @@ document.addEventListener('DOMContentLoaded', () => {
         e.preventDefault();
         const fullName = userFullnameInput.value.trim();
         const phoneNumber = userPhoneInput.value.trim();
+        const referrerInfo = userReferrerInput.value.trim(); // <-- خواندن مقدار فیلد جدید
 
         if (!fullName || !phoneNumber) {
             if(userDataFeedback) displayFeedback(userDataFeedback, "نام و نام خانوادگی و شماره تماس الزامی است.", 'error');
@@ -341,6 +344,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const result = await callApi('saveAnonymousSelections', { 
             fullName: fullName, 
             phoneNumber: phoneNumber, 
+            referrer: referrerInfo, // <-- ارسال فیلد جدید به سرور
             selections: currentSelections 
         });
 
@@ -364,13 +368,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const result = await callApi('getAllRegistrations', {}, ADMIN_API_TOKEN); 
         
         if (result && result.success && result.registrations) {
-            allRegistrationsData = result.registrations; // ذخیره داده‌ها برای استفاده‌های بعدی
-
+            allRegistrationsData = result.registrations; 
             if (allRegistrationsData.length === 0) {
                 if(adminContentArea) adminContentArea.innerHTML = '<h3>لیست تمام ثبت‌نام‌کنندگان</h3><p>هیچ ثبت‌نامی یافت نشد.</p>';
                 return;
             }
-            buildRegistrantsList(allRegistrationsData); // نمایش لیست اولیه کاربران
+            buildRegistrantsList(allRegistrationsData); 
         } else {
             if(adminContentArea) {
                  adminContentArea.innerHTML = '<h3>لیست تمام ثبت‌نام‌کنندگان</h3>';
@@ -386,7 +389,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const table = document.createElement('table');
         table.classList.add('admin-users-table');
         const header = table.createTHead().insertRow();
-        ['نام کامل', 'شماره تماس', 'زمان ثبت اولیه', 'تعداد انتخاب‌ها'].forEach(text => header.insertCell().textContent = text);
+        // اضافه کردن ستون جدید به هدر
+        ['نام کامل', 'شماره تماس', 'معرف/مقطع/مدرس', 'زمان ثبت اولیه', 'تعداد انتخاب‌ها'].forEach(text => header.insertCell().textContent = text);
         
         const tbody = table.createTBody();
         registrations.forEach(reg => {
@@ -396,6 +400,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             row.insertCell().textContent = reg.fullName;
             row.insertCell().textContent = reg.phoneNumber;
+            row.insertCell().textContent = reg.referrer || '-'; // <-- نمایش اطلاعات معرف
             row.insertCell().textContent = reg.registeredAt ? new Date(reg.registeredAt).toLocaleString('fa-IR', { year:'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute:'2-digit' }) : '-';
             row.insertCell().textContent = reg.selections ? reg.selections.length : 0;
 
@@ -412,7 +417,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const userData = allRegistrationsData.find(r => r.submissionId === submissionId);
         if (!userData) {
             adminContentArea.innerHTML = '<p>اطلاعات کاربر یافت نشد.</p>';
-            // دکمه بازگشت در صورتی که کاربر یافت نشد
             const backBtnNotFound = document.createElement('button');
             backBtnNotFound.textContent = 'بازگشت به لیست ثبت‌نام کنندگان';
             backBtnNotFound.classList.add('admin-action-button');
@@ -421,9 +425,11 @@ document.addEventListener('DOMContentLoaded', () => {
             adminContentArea.appendChild(backBtnNotFound);
             return;
         }
-
+        
+        // نمایش اطلاعات معرف در عنوان
+        const referrerDisplay = userData.referrer ? ` (معرف: ${userData.referrer})` : '';
         adminContentArea.innerHTML = `
-            <h3>جزئیات انتخاب‌های ${userData.fullName} (تلفن: ${userData.phoneNumber})</h3>
+            <h3>جزئیات انتخاب‌های ${userData.fullName} (تلفن: ${userData.phoneNumber})${referrerDisplay}</h3>
             <button id="back-to-registrants-list" class="admin-action-button" style="margin-bottom:15px;">بازگشت به لیست ثبت‌نام کنندگان</button>
         `;
 
@@ -437,22 +443,20 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // ایجاد جداول زمانی برای نمایش انتخاب‌های کاربر
         Object.keys(timeSlots).forEach(sectionKey => {
             const sectionConfig = timeSlots[sectionKey];
-            // فقط بخش‌هایی را نمایش بده که کاربر در آن‌ها انتخاب داشته است
             const userSelectionsForThisSection = userData.selections.filter(sel => sel.section === sectionKey);
             
             if (userSelectionsForThisSection.length > 0) {
                 const sectionDiv = document.createElement('div');
-                sectionDiv.classList.add('report-section-block'); // استفاده از استایل مشابه گزارش تجمیعی
+                sectionDiv.classList.add('report-section-block'); 
                 sectionDiv.style.marginTop = '20px';
                 sectionDiv.innerHTML = `<h4>بخش ${sectionConfig.name} (انتخاب‌های ${userData.fullName})</h4>`;
                 
                 const tableContainerId = `${sectionKey}-user-detail-table-container-${userData.submissionId}`;
                 const tableContainerDiv = document.createElement('div');
                 tableContainerDiv.id = tableContainerId;
-                tableContainerDiv.classList.add('table-container'); // برای overflow احتمالی
+                tableContainerDiv.classList.add('table-container'); 
                 
                 sectionDiv.appendChild(tableContainerDiv);
                 adminContentArea.appendChild(sectionDiv);
@@ -470,7 +474,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         container.innerHTML = ''; 
         const table = document.createElement('table'); 
-        table.classList.add('time-table'); // استفاده از استایل جدول های ادمین
+        table.classList.add('time-table'); 
         
         const header = table.createTHead().insertRow(); 
         const thDay = header.appendChild(document.createElement('th'));
@@ -494,12 +498,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 cell.setAttribute('data-label', slot); 
                 
                 const isSelected = userSelections.some(sel => 
-                    sel.day.toString() === day.toString() && // sel.section قبلا فیلتر شده
+                    sel.day.toString() === day.toString() && 
                     sel.timeSlot === slot
                 );
 
                 if (isSelected) {
-                    // cell.textContent = "✔️"; // یا "انتخاب شده"
                     cell.innerHTML = '<span style="font-size: 1.2em; color: var(--success-color);">✔</span>';
                     cell.classList.add('selected-previously-admin-view'); 
                 } else {
