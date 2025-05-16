@@ -13,10 +13,7 @@
             <div class="logo-area">
                 <h1>همیاران جشن بزرگ غدیر</h1>
             </div>
-            <!-- nav id="section-nav" حذف شد -->
             <div id="user-actions">
-                <!-- دکمه ورود/ثبت نام و اطلاعات کاربر حذف شد -->
-                <!-- دکمه پنل ادمین موقتا باقی می‌ماند تا دسترسی به آن حفظ شود، اما عملکردش تغییر خواهد کرد -->
                 <button id="admin-panel-btn" style="display: none;">پنل ادمین (موقت)</button>
                 <button id="finalize-btn" disabled>ثبت نهایی انتخاب‌ها</button>
             </div>
@@ -30,7 +27,6 @@
             <p>پس از انتخاب زمان‌ها، روی دکمه "ثبت نهایی انتخاب‌ها" در بالای صفحه کلیک کنید.</p>
         </section>
 
-        <!-- جداول به صورت عمودی نمایش داده می‌شوند -->
         <section id="sakht-section" class="content-section time-table-section always-visible-section">
             <h2>بخش ساخت و آماده‌سازی</h2>
             <div id="sakht-table-container" class="table-container">
@@ -52,7 +48,6 @@
             </div>
         </section>
 
-        <!-- مودال جدید برای دریافت اطلاعات کاربر (نام، شماره تماس) -->
         <div id="user-data-modal" class="modal">
             <div class="modal-content">
                 <span class="close-btn" id="close-user-data-modal">×</span>
@@ -64,19 +59,19 @@
                     <label for="user-phone-input">شماره تماس: <span style="color:red;">*</span> (مثال: 09123456789)</label>
                     <input type="tel" id="user-phone-input" name="user-phone-input" required pattern="09[0-9]{9}" title="شماره موبایل معتبر مانند 09123456789">
                     
+                    <!-- فیلد جدید اضافه شده -->
+                    <label for="user-referrer-input">معرف/مقطع/نام مدرس: (اختیاری)</label>
+                    <input type="text" id="user-referrer-input" name="user-referrer-input">
+
                     <div class="feedback-message" id="user-data-feedback" style="display:none;"></div>
                     <button type="submit" id="submit-user-data-and-selections">ارسال و ثبت نهایی</button>
                 </form>
             </div>
         </div>
 
-
-        <!-- پنل ادمین بدون تغییر ساختاری باقی می‌ماند، اما عملکردش در JS تغییر می‌کند -->
         <section id="admin-panel-section" class="content-section" style="display:none;">
             <h2>پنل مدیریت</h2>
             <div class="admin-actions">
-                <!-- دکمه تعریف کاربر جدید توسط ادمین حذف می‌شود چون سیستم ثبت‌نام تغییر کرده -->
-                <!-- <button id="admin-add-user-btn">تعریف کاربر جدید</button> -->
                 <button id="admin-view-all-users-btn">مشاهده لیست ثبت‌نام‌کنندگان</button>
                 <button id="admin-view-aggregated-report-btn">گزارش تجمیعی حضور</button>
                 <button id="logout-admin-btn" style="display:none; background-color: var(--danger-color);">خروج از پنل ادمین</button>
@@ -87,11 +82,10 @@
         </section>
     </main>
 
-    <!-- مودال ورود ادمین (سابقاً auth-modal) -->
     <div id="admin-login-modal" class="modal">
         <div class="modal-content">
             <span class="close-btn" id="close-admin-login-modal">×</span>
-            <div id="login-form-container"> <!-- از همین کانتینر برای فرم ورود ادمین استفاده می‌کنیم -->
+            <div id="login-form-container">
                 <h3>ورود به پنل مدیریت</h3>
                 <form id="admin-login-form">
                     <label for="admin-login-username">نام کاربری ادمین:</label>
