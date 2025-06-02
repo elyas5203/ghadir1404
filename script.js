@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const timeSlots = {
         sakht: {
             name: "ساخت",
-            days: ["13", "14", "15", "16", "17", "18"],
+            days: ["14", "15", "16", "17", "18"],
             slots: ["06:00 تا 09:00 صبح", "09:00 تا 15:00 ظهر", "15:00 تا 21:00 شب", "21:00 تا 03:00 بامداد"]
         },
         ejra: {
